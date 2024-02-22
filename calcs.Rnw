@@ -1,0 +1,1469 @@
+\documentclass{article}
+\usepackage{wrapfig}
+\usepackage[bottom=1in,top=1in,right=0.5in,left=0.5in]{geometry}
+\usepackage{amsfonts}
+\usepackage{fancyvrb}
+\usepackage{amsmath}
+\usepackage{multicol}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage[colorlinks=true, linkcolor=red]{hyperref}
+\usepackage[nameinlink]{cleveref}
+\crefformat{section}{\S#2#1#3}
+\crefmultiformat{section}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
+\crefformat{paragraph}{\S#2#1#3}
+\crefmultiformat{paragraph}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
+\crefformat{subparagraph}{\S#2#1#3}
+\crefmultiformat{subparagraph}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
+\crefformat{subsubparagraph}{\S#2#1#3}
+\crefmultiformat{subsubparagraph}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
+\setlist{noitemsep}
+\title{Workshop calculations}
+\begin{document}
+\maketitle
+\tableofcontents
+ 
+\setlist{nosep}
+<<echo=F>>==
+opts_chunk$set(echo = F, message = F, warning = F)
+options(scipen = 1, digits = 4)
+rads_to_degs <- function(rads) {
+  rads*(180/pi)
+}
+degs_to_rads <- function(degs) {
+  degs*(pi/180)
+}
+get_imperial_string <- function(x) {
+  if (x > 12) {
+    ft_part_rounded <- floor(x/12)  
+  } else {
+    ft_part_rounded <- 0
+  }
+  
+  in_part_rounded <- floor(x-ft_part_rounded*12)
+  fractional_part <- x - (ft_part_rounded*12) - (in_part_rounded)
+ 
+  halves <- round(fractional_part*2, 0)
+  fourths <- round(fractional_part*4, 0)
+  eights <- round(fractional_part*8, 0)
+  sixteenths <- round(fractional_part*16, 0)
+  thirtyseconds <- round(fractional_part*32, 0)
+  
+  if (x == round(x, 0)) {
+    str <- (paste0(ft_part_rounded, "' ", in_part_rounded, "\"")) 
+  } else {
+    if (thirtyseconds == sixteenths * 2 & sixteenths == eights * 2 & eights == fourths * 2 & fourths == halves * 2) {
+      str <- (paste0(ft_part_rounded, "' ", in_part_rounded, "\" ", halves, "/2")) 
+    } else if (thirtyseconds == sixteenths * 2 & sixteenths == eights * 2 & eights == fourths * 2) {
+      str <- (paste0(ft_part_rounded, "' ", in_part_rounded, "\" ", fourths, "/4")) 
+    } else if (thirtyseconds == sixteenths * 2 & sixteenths == eights * 2) {
+      str <- (paste0(ft_part_rounded, "' ", in_part_rounded, "\" ", eights, "/8")) 
+    } else if (thirtyseconds == sixteenths * 2) {
+      str <- (paste0(ft_part_rounded, "' ", in_part_rounded, "\" ", sixteenths, "/16")) 
+    } else {
+      str <- (paste0(ft_part_rounded, "' ", in_part_rounded, "\" ", thirtyseconds, "/32")) 
+    }  
+  }
+}
+@
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Notes}
+
+\begin{itemize}
+  \item In ``Imported variables'' we don't include those which just get the imperial string for variables defined elsewhere. These aren't important enough to count as genuine imported variables. 
+  \item There should be \textbf{no} variables for mortise thickness, only tenon thickness. This is to prevent inadvertent differing definitions of tenon and mortise thicknesses. When the time to cut comes, use the slick to shave off tenon depth until we get a tight fit. 
+\end{itemize}
+
+
+
+
+\section{Ridge shape and dimensions} \label{ridge-shape-and-dimensions}
+
+
+\subsection{Assumptions} \label{ridge-shape-and-dimensions-assumptions}
+
+<<echo=T>>=
+rise <- 10
+run <- 12
+theta <- atan(rise/run)
+theta_degrees <- rads_to_degs(theta)
+theta1 <- atan(run/rise)
+theta1_degrees <- rads_to_degs(theta1)
+
+purlin_height <- 7
+purlin_pocket <- 1
+purlin_height_above_rafter <- purlin_height - purlin_pocket
+
+kp_width <- 8 # at the top
+ridge_width <- kp_width
+kp_part <- 4.5 # straight part above rafters
+@
+
+\subsection{Imported variables} \label{ridge-shape-and-dimensions-imported-variables}
+
+\begin{itemize}
+  \item None. 
+\end{itemize}
+
+\subsection{Calculations} \label{ridge-shape-and-dimensions-calculations}
+\begin{center}
+	\includegraphics[width=0.35\textwidth]{images/ridge_calculations}
+\end{center}
+
+<<>>==
+h <- purlin_height_above_rafter/(cos(theta))
+ridge_part <- h - kp_part
+ridge_hyp <- 4/cos(theta)
+c <- sqrt(ridge_hyp^2 - (ridge_width/2)^2)
+ridge_ht <- ridge_part + c
+ridge_ht_imperial <- get_imperial_string(ridge_ht)
+ridge_area <- 0.5 * ridge_width * c + ridge_width * ridge_part
+ridge_length <- 12*12 # inches
+ridge_volume <- ridge_area * ridge_length
+ridge_bdft <- ridge_volume/144
+ridge_height_equivalent <- ridge_area/ridge_width
+@
+Start by knowing only roof pitch and purlin height above rafters. These determine the value of $h$ in the diagram: 
+\[ h = \Sexpr{h}.\]
+
+We set KP part to a reasonable amount (cf \Cref{ridge-shape-and-dimensions-assumptions}), and this dictates that
+\[ \text{ridge straight part} = \Sexpr{ridge_part}.\]
+
+The height for ridge angled part is dictated by roof pitch and ridge width: 
+\[c = \Sexpr{c}\]
+which means that
+\[  \boxed{\text{Ridge total height} = \Sexpr{ridge_ht} = \text{\Sexpr{ridge_ht_imperial}}} \]
+and this is the milling height for this beam. Finally, ridge cross-sectional area = \Sexpr{ridge_area}, volume = \Sexpr{ridge_volume}, which in board feet is \Sexpr{ridge_bdft}. Divide cross-sectional area by beam width to find ``equivalent'' height. We find that this pentagonal beam is equivalent to a \Sexpr{ridge_width}$\times$\Sexpr{ridge_height_equivalent} beam for the purposes of $F_b$ calculations.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\section{Kingpost length and and collar tie rough length}\label{kp-and-collar-tie-lengths}
+
+\subsection{Assumptions} \label{kp-collar-tie-assumptions}
+
+
+<<echo=T>>==
+width_of_structure <- 15*12
+width_of_structure_half <- width_of_structure/2
+post_width <- 8
+rafter_height <- 8
+collar_tie_height <- 8
+kp_through_tenon_length <- 2
+kp_top_tenon_length <- 3
+
+@
+We start with purlin height above rafters, and the width of the structure. Ignore collar tie for now.
+
+\subsection{Imported variables} \label{kp-collar-tie-imported-variables}
+
+\begin{itemize}
+  \item \verb+kp_width+ = \Sexpr{kp_width} from \Cref{ridge-shape-and-dimensions-assumptions}.
+  \item \verb+purlin_height_above_rafter+ = \Sexpr{purlin_height_above_rafter} from \Cref{ridge-shape-and-dimensions-assumptions}.
+  \item \verb+kp_part+ = \Sexpr{kp_part} from \Cref{ridge-shape-and-dimensions-assumptions}.
+\end{itemize}
+
+\subsection{Calculations} \label{kp-collar-tie-calculations}
+
+<<>>==
+###
+# NEW AFTER FIXING ERRORS
+###
+
+x1 <- width_of_structure_half - post_width - (kp_width/2)
+h1 <- purlin_height_above_rafter/sin(theta)
+h2 <- rafter_height/sin(theta)
+
+x3 <- h2 - post_width # WRONG - h2 is not the variable needed here. 
+x2 <- x1 - x3 # wrong because x3 
+h3 <- x2/cos(theta) # wrong because x2
+h4 <- (h1 + post_width + x1 + (kp_width/2))/cos(theta) # wrong because assumes h1 goes till post
+o1 <- sqrt(h4^2 - (h1 + post_width + x1 + (kp_width/2))^2) # wrong because h4
+x4 <- sqrt(h3^2 - x2^2) # wrong because h3
+o2 <- rafter_height/sin(theta1)
+
+kp_height_to_spring_line_excl_top_tenon <- kp_part + o2 + x4 # wrong because x4
+kp_height_to_spring_line_excl_top_tenon_imperial <- get_imperial_string(kp_height_to_spring_line_excl_top_tenon)
+kp_height_excl_tenons <- kp_height_to_spring_line_excl_top_tenon - collar_tie_height
+kp_height_excl_tenons_imperial <- get_imperial_string(kp_height_excl_tenons)
+kp_total_height <- kp_height_excl_tenons + collar_tie_height +  kp_through_tenon_length + kp_top_tenon_length
+kp_total_height_imperial <- get_imperial_string(kp_total_height)
+x5 <- x1 - x2
+h5 <- x5/cos(theta)
+o1_alt <- ridge_ht+kp_part+o2+x4
+ct_tenon_lengths_rough <- 5
+ct_length_rough <- x2*2+kp_width+ct_tenon_lengths_rough*2
+@
+
+
+\begin{center}
+	\includegraphics[width=0.55\textwidth]{images/kingpost_and_collar_tie_lengths}
+\end{center}
+
+The variable $x_1$ can be found by inspection; just subtract post width and half KP width from half the structure width: 
+\[ x_1 = \Sexpr{x1}\]
+and we have 
+\[ o_2 = \text{rafter height}/\sin\theta_1 = \Sexpr{o2} \]
+Then, 
+\begin{align*}
+h_2 &= \text{rafter height}/\sin\theta = \Sexpr{h2}\\
+x_3 &= h_2 - \text{post width} = \Sexpr{x3}\\
+x_2 &= x_1 - x_3 = \Sexpr{x2}\\
+h_3 &= x_2/\cos\theta = \Sexpr{h3}\\
+x_4 &= \sqrt{h_3^2 - x_2^2} = \Sexpr{x4}
+\end{align*}
+
+Using $x_4$ from above, KP from top (excluding tenon) to spring line is 
+\begin{align*}
+\text{kp part (cf \Cref{ridge-shape-and-dimensions-assumptions}) } + o_2 + x_4 &= \Sexpr{kp_height_to_spring_line_excl_top_tenon}\\
+& = \text{\Sexpr{kp_height_to_spring_line_excl_top_tenon_imperial}}
+\end{align*}
+
+We can also calculate for later:
+\begin{align*}
+h_1 &= \text{purlin height above rafters}/\sin\theta = \Sexpr{h1}\\
+h_4 &= (h_1 + \text{post width} + x_1 + \text{kingpost width}/2)/\cos\theta = \Sexpr{h4}\\
+o_1 &= \sqrt{h_4^2 - (h_1 + \text{post width} + x_1 + \text{kingpost width}/2)^2}  = \Sexpr{o1}
+\end{align*}
+
+Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4$, to get \Sexpr{o1_alt}, which should match the above. For diagram 2, we have $x_5 = x_1 - x_2 =$ \Sexpr{x5} $ \implies h_5 =x_5/\cos\theta = $ \Sexpr{h5}, which is enough space between post and collar tie. Since KP from top (excluding tenon) to spring line is \Sexpr{kp_height_to_spring_line_excl_top_tenon}, and bottom of collar tie is at the spring line, KP length excluding \textbf{both} tenons is \Sexpr{kp_height_to_spring_line_excl_top_tenon} - \Sexpr{collar_tie_height} (collar tie height) = \Sexpr{kp_height_excl_tenons}. Assuming a \Sexpr{kp_through_tenon_length}-inch through tenon at bottom and \Sexpr{kp_top_tenon_length}-inch tenon at the top, we have 
+
+\[ \boxed{\text{KP length }= \Sexpr{kp_height_excl_tenons} + \Sexpr{collar_tie_height} + \Sexpr{kp_through_tenon_length} + \Sexpr{kp_top_tenon_length} = \Sexpr{kp_total_height} =  \text{\Sexpr{kp_total_height_imperial}}}.\]
+
+\textbf{Roughly}, collar tie length, assuming 5-inch tenons, is $x_2\times 2 + \text{KP width} + \text{tenon lengths} = $ \Sexpr{ct_length_rough}. See \Cref{collar-tie-final-length} for more accurate calculations.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\section{Post length excluding tenons and rough rafter length}\label{posts-and-rafters}
+
+
+\subsection{Assumptions}\label{posts-rafters-assumptions}
+<<echo=T>>==
+structure_height <- 15*12 # top of ridge to base
+overhang_sides <- 24 # inches
+rafter_tenons_preliminary <- 3 # assuming 3 inch tenons; to be made precise later
+@
+
+
+\subsection{Imported variables} \label{posts-rafters-imported-variables}
+\begin{itemize}
+  \item $h_5$ from \Cref{kp-collar-tie-calculations}.
+  \item $x_5$ from \Cref{kp-collar-tie-calculations}.
+  \item ``top of ridge to spring line'' is comprised of ``kp height to spring line excl top tenon'' from \Cref{kp-collar-tie-calculations} and ``ridge height'' from \Cref{ridge-shape-and-dimensions-calculations}.
+  \item Post width is from \Cref{kp-collar-tie-assumptions}.
+  \item $x_1$ is from \Cref{kp-collar-tie-calculations}.
+\end{itemize}
+
+
+\subsection{Calculations} \label{posts-rafters-calculations}
+
+\begin{center}
+  \fbox{The diagram for this section is in the previous section.}
+\end{center}
+
+<<>>==
+x6 = sqrt(h5^2 - x5^2)
+top_of_ridge_to_spring_line <- kp_height_to_spring_line_excl_top_tenon + ridge_ht
+base_to_spring_line <- structure_height - top_of_ridge_to_spring_line
+base_to_spring_line_imperial <- get_imperial_string(base_to_spring_line)
+post_height_excluding_tenons <- base_to_spring_line - x6
+post_height_excluding_tenons_imperial <- get_imperial_string(post_height_excluding_tenons)
+x8 <- overhang_sides/cos(theta)
+h6 <- (post_width+x1)/cos(theta)
+rafter_length_preliminary <- x8+h6+rafter_tenons_preliminary
+rafter_length_preliminary_imperial <- get_imperial_string(rafter_length_preliminary)
+@
+
+The triangle above with $x_5$ and $h_5$ has a third side, call it $x_6$, for which we have 
+\[ x_6 = \sqrt{h_5^2 - x_5^2} = \Sexpr{x6}. \]
+
+From base to spring line is 
+\begin{align*}
+\text{structure height - (top of ridge to spring line)} &= \Sexpr{structure_height} - \Sexpr{top_of_ridge_to_spring_line}\\
+&= \Sexpr{base_to_spring_line}\\
+&= \text{\Sexpr{base_to_spring_line_imperial}}
+\end{align*}
+
+Now, $x_6$ extends from spring line to the higher side of where the post meets rafters. Therefore, post height excluding tenons is 
+\[ \Sexpr{base_to_spring_line} - \Sexpr{x6} = \Sexpr{post_height_excluding_tenons} = \text{\Sexpr{post_height_excluding_tenons_imperial}}  \]
+
+See \Cref{posts-plan} for measurements including tenons. 
+
+The structure has an overhang on both sides, which we take to be \Sexpr{overhang_sides} (cf \Cref{posts-rafters-assumptions}), and this allows us to calculate $x_8$ in the diagram: 
+\[ x_8 = \frac{24}{\cos\theta} = \Sexpr{x8}. \]
+
+The variable $h_6$ is just post width + $x_1$ divided by the cosine, so we have 
+\[ h_6 = \frac{\text{post width + }x_1}{\cos\theta} = \Sexpr{h6} \]
+
+So \textbf{rough} rafter length, assuming \Sexpr{rafter_tenons_preliminary}-inch tenons is 
+\[ x_8 + h_6 + \Sexpr{rafter_tenons_preliminary} = \Sexpr{rafter_length_preliminary} = \text{\Sexpr{rafter_length_preliminary_imperial}}.\]
+
+See \Cref{kp-rafter-joints-calculations} for more precise measurements.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+\section{Kingpost/rafter joints and rafter final length}\label{kingpost-rafter-joints}
+
+\subsection{Assumptions}  \label{kp-rafter-joints-assumptions}
+
+<<echo=T>>==
+kp_rafter_shoulder_depth <- 1 # along the x axis
+rafter_tenon_depth_into_kp <- 3 # along the x axis
+rafter_tenon_thickness <- 2
+# In this section assume no KP flare
+@
+
+
+
+\subsection{Imported variables} \label{kp-rafter-joints-imported-variables}
+\begin{itemize}
+  \item \verb+kp_top_tenon_length+ = \Sexpr{kp_top_tenon_length} from \Cref{kp-collar-tie-assumptions}. Here \verb+k_1+.
+  \item \verb+kp_part+ = \Sexpr{kp_part} from \Cref{ridge-shape-and-dimensions-assumptions}.
+  \item \verb+rafter_height+ = \Sexpr{rafter_height} from \Cref{kp-collar-tie-assumptions}. 
+  \item \verb+collar_tie_height+ = \Sexpr{collar_tie_height} from \Cref{kp-collar-tie-assumptions}.
+  \item \verb+kp_through_tenon_length+ = \Sexpr{kp_through_tenon_length} from \Cref{kp-collar-tie-assumptions}
+  \item \verb+kp_total_height+ = \Sexpr{kp_total_height} from \Cref{kp-collar-tie-calculations}
+  \item \verb+x8+ = \Sexpr{x8} from \Cref{posts-rafters-calculations}
+  \item \verb+h6+ from \Sexpr{h6} from \Cref{posts-rafters-calculations}
+\end{itemize}
+
+
+
+\subsection{Calculations} \label{kp-rafter-joints-calculations}
+
+\begin{center}
+\fbox{Ignore anything in these diagrams following that isn't relevant, like hardcoded values.}
+\end{center}
+
+\begin{center}
+	\includegraphics[width=0.4\textwidth]{images/kingpost_overall}
+\end{center}
+
+
+
+<<>>==
+k1 <- kp_top_tenon_length
+k2 <- kp_part
+k3 <- rafter_height/cos(theta)
+k5 <- collar_tie_height + kp_through_tenon_length
+k4 <- kp_total_height - k1 - k2 - k3 - k5
+k7 <- kp_rafter_shoulder_depth/sin(theta1)
+k11 <- sqrt(k7^2 - kp_rafter_shoulder_depth^2)
+k12 <- k3 - k11
+k6 <- sqrt(k12^2 + kp_rafter_shoulder_depth^2)
+
+k16 <- rafter_tenon_depth_into_kp/cos(theta)
+k13 <- k16 - k7
+theta4 <- rads_to_degs(acos(k12/k6))
+theta5 <- 90 - theta4
+theta6_degrees <- 180 - theta1_degrees - theta4 - theta5
+k14 <- rafter_tenon_depth_into_kp * cos(theta)
+k15 <- sin(theta) * k16
+k10 <- k3 - k15
+rafter_length_final <- x8 + h6 + k14
+rafter_length_final_imperial <- get_imperial_string(rafter_length_final)
+
+k14_imperial <- get_imperial_string(k14)
+rafter_tenon_depth_into_kp_imperial <- get_imperial_string(rafter_tenon_depth_into_kp)
+k10_imperial <- get_imperial_string(k10)
+k13_imperial <- get_imperial_string(k13)
+k7_imperial <- get_imperial_string(k7)
+k3_imperial <- get_imperial_string(k3)
+@
+
+The variable for ``KP part'' was not labeled in \Cref{ridge-shape-and-dimensions-assumptions}; here we label it as $k_2$; its value is \Sexpr{kp_part}. The KP tenon height into ridge ($k_1$) is \Sexpr{kp_top_tenon_length} (cf \Cref{kp-rafter-joints-imported-variables}). The variable $k_3$ is just rafter height divided by the cosine, which is 
+\[ k_3 = \text{rafter height}/\cos\theta = \Sexpr{k3}.   \]
+
+\begin{center}
+	\includegraphics[width=0.3\textwidth]{images/k3}
+\end{center}
+
+The variable $k_5$ is given by collar tie height + through tenon length; here we have $k_5 = \Sexpr{k5}$. Then we have 
+\[ k_4 = \text{KP total length} - k_1 - k_2 - k_3 - k_5 = \Sexpr{k4}. \]
+
+
+\begin{center}
+	\includegraphics[width=0.4\textwidth]{images/kp_shoulder_angles}
+\end{center}
+
+
+The variables defined around the rafter-to-kp-shoulder are 
+\begin{align*}
+k_7 &= \Sexpr{k7}\\
+k_{11} &= \Sexpr{k11}\\
+k_{12} &= \Sexpr{k12}\\
+k_6 &= \Sexpr{k6}
+\end{align*}
+
+\begin{center}
+	\includegraphics[width=0.45\textwidth]{images/rafter_tenon_detail}
+\end{center}
+
+The variables around rafter tenon/shoulder\footnote{It would seem that variable names $k_8$ and $k_9$ were never used in the paper drawings.} are 
+\begin{align*}
+k_{16} &= \text{rafter tenon depth into KP}/\cos\theta = \Sexpr{k16}\\
+k_{13} &= k_{16} - k_7 = \Sexpr{k13}\\
+\theta_4 &= \arccos \left(\frac{k_{12}}{k_6}\right) = \Sexpr{theta4}\\
+\theta_5 &= 90 - \theta_4 = \Sexpr{theta5}\\
+\theta_6 &= 180 - \theta_1 - \theta_4 - \theta_5 = \Sexpr{theta6_degrees}\\
+k_{14} &= \text{rafter tenon depth into KP} \times \cos\theta_6 = \Sexpr{k14}\\
+k_{15} &= k_{16} \times \sin\theta = \Sexpr{k15}\\
+k_{10} &= k_3 - k_{15} = \Sexpr{k10}
+\end{align*}
+
+
+
+Now, we can calculate rafter length more precisely than in \Cref{posts-rafters-calculations}, where we just estimated the tenon length. We have 
+
+\[ \boxed{\text{Rafter length} = x_8 + h_6 + k_{14} = \Sexpr{rafter_length_final} = \text{\Sexpr{rafter_length_final_imperial}}.}\]
+
+ 
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+ 
+
+
+
+
+\section{Rafter connections} \label{rafter-lengths-and-connections}
+
+\subsection{Assumptions} \label{rafter-lengths-connections-assumptions}
+<<echo=T>>==
+post_tenon_depth_into_rafter <- 4
+post_rafter_shoulder_depth <- 1
+collar_tie_rafter_shoulder_depth <- 1
+collar_tie_tenon_into_rafter_thickness <- 2
+collar_tie_tenon_into_rafter_depth <- 4
+post_tenon_into_rafter_thickness <- 2
+@
+
+
+\subsection{Imported variables} \label{rafter-lengths-connections-imported-variables}
+
+\begin{itemize}
+  \item \verb+x8+ = \Sexpr{x8} from \Cref{posts-rafters-calculations}.
+  \item \verb+h6+ = \Sexpr{h6} from \Cref{posts-rafters-calculations}.
+  \item \verb+rafter_height+ = \Sexpr{rafter_height} from \Cref{kp-collar-tie-assumptions}.
+  \item \verb+collar_tie_height+ = \Sexpr{collar_tie_height} from \Cref{kp-collar-tie-assumptions}. 
+  \item \verb+h3+ = \Sexpr{h3} from \Cref{kp-collar-tie-calculations}.
+  \item \verb+h5+ = \Sexpr{h5} from \Cref{kp-collar-tie-calculations}.
+  \item \verb+post_width+ = \Sexpr{post_width} from \Cref{kp-collar-tie-assumptions}.
+\end{itemize}
+
+
+
+\subsection{Calculations} \label{rafter-lengths-connections-calculations}
+
+<<echo=T>>==
+r6 <- rafter_height/tan(theta1)
+r8 <- x8 + h6 - r6
+r3 <- collar_tie_height/cos(theta1)
+r2 <- h3 - r3
+r5 <- post_width/cos(theta)
+r4 <- h5
+r7 <- r8 - r5 - r4 - r3 - r2
+
+theta2 <- atan(post_rafter_shoulder_depth/r5)
+theta2_degrees <- rads_to_degs(theta2)
+r6 <- post_rafter_shoulder_depth/sin(theta2)
+r12 <- post_tenon_depth_into_rafter/tan(theta1)
+r13 <- r5 - r12
+
+theta3 <- atan(collar_tie_rafter_shoulder_depth/r3)
+theta3_degrees <- rads_to_degs(theta3)
+theta4_degrees <- theta_degrees - theta3_degrees
+r9 <- collar_tie_tenon_into_rafter_depth/sin(theta)
+r10 <- sqrt(r9^2 - collar_tie_tenon_into_rafter_depth^2)
+r11 <- r3 - r10
+
+@
+
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/rafter_length}
+\end{center}
+
+First, we calculate rafter length on underside, which is 
+\[ r_8 = x_8 + h_6 - r_6 = x_8 + h_6 - (\text{rafter height}/\tan\theta_1) = \Sexpr{r8}. \]
+
+Then we have the following
+\begin{align*}
+r_3 &= \text{collar tie height}/\cos\theta_1 = \Sexpr{r3}\\
+r_2 &= h_3 - r_3 = \Sexpr{r2}\\
+r_5 &= \text{post width}/\cos\theta = \Sexpr{r5}\\
+r4 &= h_5 = \Sexpr{r4}
+\end{align*}
+which implies that 
+\[ r_7 = r_8 - r_5 - r_4 - r_3 - r_2 = \Sexpr{r7}. \]
+
+It might seem surprising that $r_7$ = \Sexpr{r7} is more than the overhang = \Sexpr{overhang_sides}, but it does check out if drawn to scale. 
+
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/post_tenons_into_rafters}
+\end{center}
+
+For post tenons into rafters at \Sexpr{post_tenon_into_rafter_thickness}-in thick, we have 
+\begin{align*}
+  \theta_2 &= \arctan \left(\frac{\text{shoulder depth}}{r_5}\right) = \Sexpr{theta2_degrees}\\
+  r_6 &= \frac{\text{shoulder depth}}{\sin\theta_2} = \Sexpr{r6}\\
+  r_{12} &= \frac{\text{tenon depth}}{\tan\theta_1} = \Sexpr{r12}\\
+  r_{13} &= r_5 - r_{12} = \Sexpr{r13}
+\end{align*}
+
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/collar_tie_tenons_into_rafters}
+\end{center}
+
+For collar tie tenons into rafters at \Sexpr{collar_tie_tenon_into_rafter_thickness}-in thick, 
+\begin{align*}
+  \theta_3 &= \arctan \left( \frac{\text{shoulder depth}}{r_3} \right) = \Sexpr{theta3_degrees}^\circ\\
+  \theta_4 &= \theta - \theta_3 = \Sexpr{theta4_degrees}^\circ\\
+  r_9 &= \frac{\text{tenon depth}}{\sin\theta} = \Sexpr{r9}\\
+  r_{10} &= \sqrt{r_9^2 - (\text{tenon depth})^2} = \Sexpr{r10}\\
+  r_{11} &= r_3 - r_{10} = \Sexpr{r11}
+\end{align*}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Strut/KP connections} \label{strut-kp-connections}
+
+\subsection{Assumptions} \label{strut-kp-connections-assumptions}
+<<echo=T>>==
+strut_height_above_collar_tie <- 3
+kp_width_bottom <- 10 # flared bottom
+kp_flare <- (kp_width_bottom - kp_width)/2 # flare on each side
+strut_width <- 5
+strut_tenon_into_rafter_thickness <- 1.5
+strut_tenon_into_kp_depth <- 2
+strut_tenon_into_kp_thickness <- 1.5
+strut_tenon_into_rafter_depth <- 4
+@
+
+\subsection{Imported variables} \label{strut-kp-connections-imported-variables}
+\begin{itemize}
+  \item \verb+h3+ = \Sexpr{h3} from \Cref{kp-collar-tie-calculations}.
+  \item \verb+collar_tie_height+ = \Sexpr{collar_tie_height} from \Cref{kp-and-collar-tie-lengths}.
+  \item \verb+kp_width+ = \Sexpr{kp_width} from \Cref{ridge-shape-and-dimensions-assumptions}.
+  \item \verb+r2+ = \Sexpr{r2} from \Cref{rafter-lengths-connections-calculations}.
+  \item \verb+r3+ = \Sexpr{r3} from \Cref{rafter-lengths-connections-calculations}.
+\end{itemize}
+
+
+
+\subsection{Calculations} \label{strut-kp-connections-calculations}
+<<>>==
+s1 <- collar_tie_height/sin(theta)
+s2 <- h3 - s1
+s2_equal_r2 <- (round(s2,4) == round(r2,4))
+s1_equal_r3 <- (round(s1,4) == round(r3,4))
+s3 <- strut_height_above_collar_tie/sin(theta)
+s4 <- strut_height_above_collar_tie/tan(theta)
+s5 <- s2 - s3
+s6 <- cos(theta) * s5 - kp_flare
+s7 <- cos(theta1) * s6
+s8 <- tan (theta1) * s7
+s9 <- s5 - s8 - strut_width
+s10 <- s9/tan(theta)
+theta6s <- theta1
+theta9 <- theta
+s11 <- kp_flare/cos(theta)
+s12 <- sqrt(s11^2 - kp_flare^2)
+theta8 <- pi/2 - theta9
+theta8_degrees <- rads_to_degs(theta8)
+s14 <- strut_width/cos(theta8)
+theta9 <- asin(strut_width/s14)
+theta9_degrees <- rads_to_degs(theta9)
+theta_equal_theta9 <- (theta == theta9)
+s13 <- s14 - s12
+s15 <- sqrt(s13^2 + kp_flare^2)
+theta5s <- acos(kp_flare/s15)
+theta5s_degrees <- rads_to_degs(theta5s)
+theta2s <- asin(strut_width/s15)
+theta2s_degrees <- rads_to_degs(theta2s)
+theta4s <- asin(kp_flare/s15)
+theta4s_degrees <- rads_to_degs(theta4s)
+theta10 <- acos(strut_width/s15)
+theta10_degrees <- rads_to_degs(theta10)
+theta3s_degrees <- 90 + theta10_degrees
+
+s3_plus_s8 <- s3+s8
+s3_plus_s8_imperial <- get_imperial_string(s3_plus_s8)
+
+theta13_degrees <- theta_degrees + theta4s_degrees
+theta13 <- degs_to_rads(theta13_degrees)
+theta11_degrees <- 360 - 90 - 90 - theta13_degrees
+s19 <- strut_tenon_into_kp_depth/sin(theta13)
+s19_imperial <- get_imperial_string(s19)
+theta14_degrees <- theta11_degrees - 90
+theta15_degrees <- 180 - theta2s_degrees - 90
+theta15 <- degs_to_rads(theta15_degrees)
+s16 <- sqrt(s19^2- strut_tenon_into_kp_depth^2)
+s17 <- s15 - s16
+s17_imperial <- get_imperial_string(s17)
+s18 <- cos(theta15) * strut_tenon_into_kp_depth
+s16_plus_s17 <- s16 + s17
+s16_plus_s17_imperial <- get_imperial_string(s16_plus_s17)
+
+strut_length <- strut_tenon_into_rafter_depth + s7 + s18
+strut_length_imperial <- get_imperial_string(strut_length)
+@
+
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/strut_kp_overall}
+\end{center}
+
+The calculations for the first diagram are 
+\begin{align*}
+  s_1 &= (\text{collar tie height})/\sin\theta = \Sexpr{s1}.\\
+  s_2 &= h_3 - s_1 = \Sexpr{s2}.\\
+  s_3 &= \text{strut height above collar tie}/\sin\theta = \Sexpr{s3}.\\
+  s_4 &= \text{strut height above collar tie}/\tan\theta = \Sexpr{s4}.\\
+  s_5 &= s_2 - s_3 = \Sexpr{s5}.\\
+  s_6 &= \cos\theta\times s_5 - \text{KP flare at bottom} = \Sexpr{s6}.\\
+  s_7 &= \cos\theta_1\times s_6 = \Sexpr{s7}.\\
+  s_8 &= \tan\theta_1\times s_7 = \Sexpr{s8}.\\
+  s_9 &= s_5 - s_8 - \text{strut width} = \Sexpr{s9}.\\
+  s_{10} &= s_9/\tan\theta = \Sexpr{s10}.
+\end{align*}
+
+
+\begin{center}
+	\includegraphics[width=0.35\textwidth]{images/strut_kp_detail}
+\end{center}
+
+For the second diagram, we have 
+\begin{align*}
+  s_{12} &= \sqrt{s_{11}^2 - \text{kp flare}^2} = \Sexpr{s12}\\
+  \theta_8 &= 90 - \theta_9 = \theta_1 = \Sexpr{theta8_degrees}\\
+  s_{14} &= \text{strut width}/\cos\theta_8 = \Sexpr{s14}\\
+  \theta_9 &= \arcsin(\text{strut width}/s_{14}) = \Sexpr{theta9_degrees}\\
+  s_{13} &= s_{14} - s_{12} = \Sexpr{s13}\\
+  s_{15} &= \sqrt{s_{13} + \text{kp flare}^2} = \Sexpr{s15}\\
+  \theta_5^s &= \arccos(\text{kp flare}/s_{15}) = \Sexpr{theta5s_degrees}\\
+  \theta_2^s &= \arcsin(\text{strut width}/s_{15}) = \Sexpr{theta2s_degrees}\\
+  \theta_4^s &= \arcsin(\text{kp flare}/s_{15}) = \Sexpr{theta4s_degrees}\\
+  \theta_{10} &= \arccos(\text{strut width}/s_{15}) = \Sexpr{theta10_degrees}\\
+  \theta_3^s &= 90 + \theta_{10} = \Sexpr{theta3s_degrees}
+\end{align*}
+
+\begin{center}
+\fbox{\textbf{Check: Does $s_2 = r_2$?} \Sexpr{s2_equal_r2}.}
+\end{center}
+
+\begin{center}
+\fbox{\textbf{Check: Does $s_1 = r_3$?} \Sexpr{s1_equal_r3}.}
+\end{center}
+
+\begin{center}
+\fbox{\textbf{Check: Does $\theta_9 = \theta$?} \Sexpr{theta_equal_theta9}.}
+\end{center}
+
+
+
+\subsection{Strut tenons into KP}
+\begin{center}\fbox{There seems to be an extra $s_{18}$ in the diagram in the middle - not sure what that is.}\end{center}
+\begin{center}
+	\includegraphics[width=0.45\textwidth]{images/strut_kp_tenon_detail}
+\end{center}
+
+The calculations are 
+\begin{align*}
+  \theta_{13} &= \theta + \theta_4^2 = \Sexpr{theta13_degrees}\\
+  \theta_{11} &= 360 - 90 - 90 - \theta_{13} = \Sexpr{theta11_degrees}\\
+  s_{19} &= \text{strut tenon into kp depth}/\sin\theta_{13} = \Sexpr{s19}\\
+  \theta_{14} &= \theta_{11} - 90 = \Sexpr{theta14_degrees}\\
+  \theta_{15} &= 180 - \theta_s^2 - 90 = \Sexpr{theta15_degrees}\\
+  s_{16} &= \sqrt{s_{19}^2 - \text{strut tenon into kp depth}^2} = \Sexpr{s16}\\
+  s_{17} &= s_{15} - s_{16} = \Sexpr{s17}\\
+  s_{18} &= \cos\theta_{15}\times \text{strut tenon into kp depth} = \Sexpr{s18}
+\end{align*}
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+\section{Collar tie final length}\label{collar-tie-final-length}
+
+\subsection{Assumptions}
+<<echo=T>>==
+collar_tie_tenon_into_rafter_depth <- 4 # at 90 degrees to rafter face
+collar_tie_depth <- 6 # beam depth
+kp_through_tenon_thickness <- 2
+@
+
+\subsection{Imported variables}
+\begin{itemize}
+  \item \verb+x2+ = \Sexpr{x2} from \Cref{kp-collar-tie-calculations}
+  \item \verb+kp_flare+ = \Sexpr{kp_flare} from \Cref{strut-kp-connections-assumptions}
+  \item \verb+kp_width_bottom+ = \Sexpr{kp_width_bottom} from \Cref{strut-kp-connections-assumptions}
+  \item \verb+r11+ = \Sexpr{r11} from \Cref{rafter-lengths-connections-calculations}
+  \item \verb+r9+ = \Sexpr{r9} from \Cref{rafter-lengths-connections-calculations}
+  \item \verb+collar_tie_height+ = \Sexpr{collar_tie_height} from \Cref{kp-collar-tie-assumptions}
+  \item \verb+collar_tie_rafter_shoulder_depth+ = \Sexpr{collar_tie_rafter_shoulder_depth} from \Cref{rafter-lengths-connections-assumptions}
+  \item \verb+collar_tie_tenon_into_rafter_thickness+ = \Sexpr{collar_tie_tenon_into_rafter_thickness} from \Cref{rafter-lengths-connections-assumptions}
+  \item \verb+kp_width+ = \Sexpr{kp_width} from \Cref{ridge-shape-and-dimensions-assumptions}
+  \item \verb+theta3_degrees+ = \Sexpr{theta3_degrees} from \Cref{rafter-lengths-connections-calculations}
+\end{itemize}
+
+\subsection{Calculations}
+
+<<>>==
+c2 <- collar_tie_tenon_into_rafter_depth/sin(theta)
+c1 <- x2 - kp_flare
+collar_tie_length <- c1*2 + kp_width_bottom + c2*2
+collar_tie_length_imperial <- get_imperial_string(collar_tie_length)
+@
+
+TODO CURRENT
+
+<<>>==
+d <- (180-c1*2+10)/2
+cc <- sin(theta) * d
+@
+\Sexpr{cc}
+
+
+\begin{center}\fbox{The diagram has a hardcoded value - ignore.}\end{center}
+\begin{center}
+	\includegraphics[width=0.45\textwidth]{images/ct_cut_plan}
+\end{center}
+
+Since tenon depth = \Sexpr{collar_tie_tenon_into_rafter_depth}, we have $c_2$ = \Sexpr{c2}. Since KP width at bottom is \Sexpr{kp_width_bottom}, we modify from above (\Cref{ridge-shape-and-dimensions-assumptions}) where KP width was \Sexpr{kp_width} (\Cref{ridge-shape-and-dimensions-assumptions}):
+\[ \text{New }x_2 = c_1 = x_2 - \Sexpr{kp_flare} = \Sexpr{c1}.  \]
+
+Then 
+\[ \boxed{\text{CT length }= c_1\times 2 + \Sexpr{kp_width_bottom} + c_2\times 2 = \Sexpr{collar_tie_length} = \text{\Sexpr{collar_tie_length_imperial}}.}\]
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+\section{Braces} \label{braces}
+
+\subsection{Assumptions}
+<<echo=T>>==
+brace_width <- 5
+brace_exposed_length_top <- 36
+brace_tenon_depth_into_collar_tie <- 3
+brace_tenon_depth_into_post <- 3
+@
+\subsection{Imported variables}
+\begin{itemize}
+  \item \verb+x5+ = \Sexpr{x5} from \Cref{kp-collar-tie-calculations}.
+  \item \verb+r4+ = \Sexpr{r4} from \Cref{rafter-lengths-connections-calculations}.
+\end{itemize}
+
+\subsection{Calculations} \label{braces-calculations}
+<<>>==
+b1 <- cos(theta) * brace_exposed_length_top
+b2 <- b1 - x5
+b5 <- sin(theta1) * r4
+b4 <- sin(theta) * brace_exposed_length_top
+b3 <- b4 - b5
+b6 <- tan(theta1) * brace_width
+b7 <- tan(theta) * brace_width
+b8 <- brace_exposed_length_top + b6 + b7
+b11 <- brace_tenon_depth_into_collar_tie/tan(theta)
+b9 <- brace_width/cos(theta1)
+b10 <- b9 - b11
+b12 <- cos(theta1) * brace_tenon_depth_into_collar_tie
+b13 <- brace_tenon_depth_into_post/tan(theta1)
+b15 <- brace_width/cos(theta)
+b14 <- b15 - b13
+b16 <- cos(theta) * brace_tenon_depth_into_post
+@
+
+\begin{center}\fbox{The diagrams have some hardcoded values - ignore those.}\end{center}
+
+\begin{center}
+	\includegraphics[width=0.45\textwidth]{images/braces_overall}
+\end{center}
+
+For the overall diagram, the calculations are
+\begin{align*}
+  b_1 &= \cos\theta\times \text{brace exposed length at top} = \Sexpr{b1}\\
+  b_2 &= b_1 - x_5 = \Sexpr{b2}\\
+  b_5 &= \sin\theta_1\times r_4 = \Sexpr{b5}\\
+  b_4 &= \sin\theta\times \text{brace exposed length at top} = \Sexpr{b4}\\
+  b_3 &= b_4 - b_5 = \Sexpr{b3}\\
+  b_6 &= \tan\theta_1\times \text{brace width} = \Sexpr{b6}\\
+  b_7 &= \tan\theta\times \text{brace width} = \Sexpr{b7}\\
+  b_8 &= \text{brace exposed length at top} + b_6 + b_7 = \Sexpr{b8}\\
+\end{align*}
+
+\begin{center}
+	\includegraphics[width=0.45\textwidth]{images/braces_into_ct}
+\end{center}
+
+For braces into collar tie, 
+\begin{align*}
+  b_{11} &= \text{brace tenon depth into collar tie}/\tan\theta = \Sexpr{b11}\\
+  b_9 &= \text{brace width}/\cos\theta_1 = \Sexpr{b9}\\
+  b_{10} &= b_9 - b_{11} = \Sexpr{b10}\\
+  b_{12} &= \text{brace tenon depth into collar tie}\times \cos\theta_1 = \Sexpr{b12}\\
+\end{align*}
+
+\begin{center}
+	\includegraphics[width=0.45\textwidth]{images/braces_into_post}
+\end{center}
+
+For braces into post, 
+\begin{align*}
+  b_{13} &= \text{brace tenon depth into post}/\tan\theta_1 = \Sexpr{b13}\\
+  b_{15} &= \text{brace width}/\cos\theta = \Sexpr{b15}\\
+  b_{14} &= b_{15} - b_{13} = \Sexpr{b14}\\
+  b_{16} &= \cos\theta\times \text{brace tenon depth into post} = \Sexpr{b16}
+\end{align*}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+\section{Posts}\label{posts-plan}
+\begin{wrapfigure}[25]{r}{0.5\textwidth}
+  \begin{center}
+  	\includegraphics[width=0.5\textwidth]{images/post_calculations}
+  \end{center}
+	\caption{Posts layout}
+\end{wrapfigure}
+
+\subsection{Assumptions} \label{posts-plan-assumptions}
+<<echo=T>>==
+post_stub_tenon_length <- 2
+@
+\subsection{Imported variables}
+Imports: 
+% This word is here just so wrapfig works correctly
+\begin{itemize}
+  \item \verb+post_tenon_depth_into_rafter+ = \Sexpr{post_tenon_depth_into_rafter} from \Cref{rafter-lengths-connections-assumptions}. 
+  \item \verb+r12+ = \Sexpr{r12} from \Cref{rafter-lengths-connections-calculations}, here called $p_1$. 
+  \item \verb+r5+ = \Sexpr{r5} from \Cref{rafter-lengths-connections-calculations}, here called $p_3$. 
+  \item \verb+post_width+ = \Sexpr{post_width} from \Cref{kp-collar-tie-assumptions}. 
+  \item \verb+post_tenon_depth_into_rafter+ = \Sexpr{post_tenon_depth_into_rafter} from \Cref{rafter-lengths-connections-assumptions}.
+  \item \verb+post_height_excluding_tenons+ = \Sexpr{post_height_excluding_tenons} from \Cref{posts-rafters-calculations}.
+  \item \verb+b3+ = \Sexpr{b3} from \Cref{braces-calculations}. 
+  \item \verb+b15+ = \Sexpr{b15} from \Cref{braces-calculations}. 
+\end{itemize}
+
+\subsection{Calculations} \label{posts-plan-calculations}
+<<>>==
+p1 <- r12
+p3 <- r5
+p2 <- sqrt(p3^2 - post_width^2)
+p4 <- cos(theta) * post_tenon_depth_into_rafter
+post_height_total <- post_height_excluding_tenons + post_stub_tenon_length + p4
+post_height_total_imperial <- get_imperial_string(post_height_total)
+post_rest_minus_stub <- post_height_total - p4 - b3 - b15 - post_stub_tenon_length
+@
+
+
+Some of the calculations were covered above in \Cref{rafter-lengths-and-connections} from the perspective of the mortise. Here, we concentrate on the tenons. Some variables are imports from the section mentioned. For the others, 
+\begin{align*}
+  p_2 &= \sqrt{p_3^2 - \text{post width}^2} = \Sexpr{p2}\\
+  p_4 &= \cos\theta\times\text{post tenon depth into rafter} = \Sexpr{p4}
+\end{align*}
+
+From \Cref{posts-rafters-calculations}, post height excluding tenons is \Sexpr{post_height_excluding_tenons}, so total post height = post height excluding tenons + stub tenon length + $p_4$, which is 
+
+\[ \boxed{\Sexpr{post_height_total} = \text{\Sexpr{post_height_total_imperial}}.} \]
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+\newpage
+
+\section{Cut plans}
+
+\begin{center}
+  \fbox{Calibrate all measuring instruments against each other before starting.}
+\end{center}
+\newpage
+
+\subsection{Posts}
+
+% \subsubsection{Assumptions} \label{posts-cut-plan-assumptions}
+<<echo=F>>==
+post_depth <- 6
+@
+
+% \subsubsection{Imported variables}
+% \begin{itemize}
+%   \item \verb+post_width+ = \Sexpr{post_width} from \Cref{kp-collar-tie-assumptions}. 
+%   \item \verb+post_height_total_imperial+ = \Sexpr{post_height_total_imperial} from \Cref{posts-plan-calculations}.
+%   \item \verb+p4+ = \Sexpr{p4} from \Cref{posts-plan-calculations}.
+%   \item \verb+b3+ = \Sexpr{b3} from \Cref{braces-calculations}. 
+%   \item \verb+b15+ = \Sexpr{b15} from \Cref{braces-calculations}. 
+%   \item \verb+post_rest_minus_stub+ = \Sexpr{post_rest_minus_stub} from \Cref{posts-plan-calculations}.
+%   \item \verb+b13+ = \Sexpr{b13} from \Cref{braces-calculations}.
+%   \item \verb+b14+ = \Sexpr{b14} from \Cref{braces-calculations}.
+% \end{itemize}
+<<>>==
+p4_imperial <- get_imperial_string(p4)
+b3_imperial <- get_imperial_string(b3)
+b15_imperial <- get_imperial_string(b15)
+b13_imperial <- get_imperial_string(b13)
+b14_imperial <- get_imperial_string(b14)
+post_rest_minus_stub_imperial <- get_imperial_string(post_rest_minus_stub)
+@
+\begin{wrapfigure}[20]{r}{0.5\textwidth}
+  \begin{center}
+  	\includegraphics[width=0.5\textwidth]{images/post_calculations}
+  \end{center}
+	\caption{Posts layout}
+\end{wrapfigure}
+
+% 
+% \begin{center}
+% 	\includegraphics[width=0.4\textwidth]{images/post_calculations}
+% \end{center}
+<<>>==
+r13_imperial <- get_imperial_string(r13)
+p1_imperial <- get_imperial_string(p1)
+p3_imperial <- get_imperial_string(p3)
+r6_imperial <- get_imperial_string(r6)
+post_stub_tenon_width <- 2
+post_stub_tenon_depth <- 2
+@
+Layout \& cut steps: 
+\begin{enumerate}
+  \item Cut a \Sexpr{post_depth}$\times$\Sexpr{post_width} beam to \Sexpr{post_height_total_imperial}. 
+  \item Mark out 
+  \begin{itemize}
+    \item $p_4$ = \Sexpr{p4_imperial}
+    \item $b_3$ = \Sexpr{b3_imperial}
+    \item $b_{15}$ = \Sexpr{b15_imperial}, then 
+    \item the rest minus stub tenon = \Sexpr{post_rest_minus_stub_imperial}, and 
+    \item verify \Sexpr{post_stub_tenon_length} inches left over for stub tenon. 
+  \end{itemize}
+  \item At top, cut shouldered tenon as in diagram: 
+  \begin{itemize}
+    \item Mark out $\theta$ = \Sexpr{round(theta_degrees, 1)} as shown on the right side and mark out tenon depth = \Sexpr{post_tenon_depth_into_rafter}.
+    \item At $90^\circ$, measure out $p_3$ = \Sexpr{p3_imperial}, and extend line from left side and verify $p_1$ = \Sexpr{p1_imperial}.
+    \item Verify that straight part is $r_{13}$ = \Sexpr{r13_imperial}. 
+    \item Mark out shoulder = \Sexpr{post_rafter_shoulder_depth} and verify that $\theta_2$ = \Sexpr{round(theta2_degrees, 1)} and $r_6$ = \Sexpr{r6_imperial}; \textbf{this is the tenon cut line}.  
+    \item Create tenon at \Sexpr{post_tenon_into_rafter_thickness}-in thick. 
+  \end{itemize}
+  \item Cut brace mortise:
+    \begin{itemize}
+      \item Mark out 
+      \begin{itemize}
+        \item $b_{13}$ = \Sexpr{b13_imperial} and 
+        \item $b_{14}$ = \Sexpr{b14_imperial}.
+      \end{itemize}
+      \item Drill straight at $b_{14}$ to depth of \Sexpr{brace_tenon_depth_into_post}
+      \item Angled mortise at $b_{13}$ at an angle of $\theta_1$
+    \end{itemize}
+  \item Cut stub tenon such that when raising, the long axis of tenon is along direction of pulling, else it could break while being raised. Perhaps the stub should be \Sexpr{post_stub_tenon_width}$\times$\Sexpr{post_stub_tenon_depth}$\times$\Sexpr{post_stub_tenon_length}, with placement TBD. 
+\end{enumerate}
+
+\newpage
+\subsection{Rafters}\label{rafter-cut-plan}
+
+\subsubsection{Assumptions} \label{rafter-cut-plan-assumptions}
+
+<<echo=T>>==
+rafter_width <- 6
+collar_tie_rafter_shoulder_depth <- 1
+@
+
+% \subsubsection{Imported variables} \label{rafter-cut-plan-imported-variables}
+% 
+% \begin{itemize}
+%   \item \verb+rafter_height+ = \Sexpr{rafter_height} (\Cref{kp-collar-tie-assumptions}).
+%   \item \verb+x8+ = \Sexpr{x8} from \Cref{posts-rafters-calculations}
+%   \item \verb+h6+ = \Sexpr{h6} from \Cref{posts-rafters-calculations}
+%   \item \verb+r7+ = \Sexpr{r7} from \Cref{rafter-lengths-connections-calculations}
+%   \item \verb+r5+ = \Sexpr{r5} from \Cref{rafter-lengths-connections-calculations}
+%   \item \verb+r4+ = \Sexpr{r4} from \Cref{rafter-lengths-connections-calculations}
+%   \item \verb+r3+ = \Sexpr{r3} from \Cref{rafter-lengths-connections-calculations}
+%   \item \verb+r2+ = \Sexpr{r2} from \Cref{rafter-lengths-connections-calculations}
+%   \item \verb+rafter_length_final+ = \Sexpr{rafter_length_final} from \Cref{kp-rafter-joints-calculations}
+%   \item \verb+k14_imperial+ = \Sexpr{k14_imperial} from \Cref{kp-rafter-joints-calculations}
+%   \item \verb+post_rafter_shoulder_depth+ = \Sexpr{post_rafter_shoulder_depth} from \Cref{rafter-lengths-connections-assumptions}
+%   \item \verb+rafter_length_final_imperial+ = \Sexpr{rafter_length_final_imperial} from \Cref{kp-rafter-joints-calculations}
+%   \item \verb+theta2_degrees+ = \Sexpr{theta2_degrees} from \Cref{rafter-lengths-connections-calculations}
+%   \item \verb+theta3_degrees+ = \Sexpr{theta3_degrees} from \Cref{rafter-lengths-connections-calculations}
+% \end{itemize}
+
+
+
+<<>>==
+x8_imperial <- get_imperial_string(x8)
+h6_imperial <- get_imperial_string(h6)
+r7_imperial <- get_imperial_string(r7)
+r5_imperial <- get_imperial_string(r5)
+r4_imperial <- get_imperial_string(r4)
+r3_imperial <- get_imperial_string(r3)
+r2_imperial <- get_imperial_string(r2)
+left_over_rafter <- rafter_length_final - r7 - r5 - r4 - r3 - r2
+left_over_rafter_imperial <- get_imperial_string(left_over_rafter)
+@
+
+
+\subsubsection{Rafter overall}
+\begin{figure}[h]       
+    \fbox{\includegraphics[width=0.45\textwidth]{images/rafter_length}}   
+    \hspace{30px}
+    \fbox{\includegraphics[width=0.36\textwidth]{images/rafter_tenon_detail}}
+    \caption{Rafter marks}
+\end{figure}
+
+\begin{enumerate}
+  \item Measure out \Sexpr{rafter_width}$\times$\Sexpr{rafter_height}$\times$\text{\Sexpr{rafter_length_final_imperial}}.
+  \item On top side mark out (left to right) $x_8 = $ \Sexpr{x8_imperial} and $h_6 = $ \Sexpr{h6_imperial}. Verify that $k_{14}$ = \Sexpr{k14_imperial}. 
+  \item On the bottom, mark out (left to right) the following:
+  \begin{align*}
+    r_7 &= \Sexpr{r7_imperial}\\
+    r_5 &= \Sexpr{r5_imperial}\\
+    r_4 &= \text{\Sexpr{r4_imperial}}\\
+    r_3 &= \Sexpr{r3_imperial}\\
+    r_2 &= \Sexpr{r2_imperial}\\
+    & \text{and verify that what's left over} = \text{\Sexpr{left_over_rafter_imperial}}.
+  \end{align*}
+\end{enumerate}
+
+
+
+\subsubsection{Mortise for post tenon}
+
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/post_tenons_into_rafters}
+\end{center}
+
+At $r_5$, mark out \Sexpr{post_rafter_shoulder_depth}-in shoulder, verify that $\theta_2$ = \Sexpr{round(theta2_degrees, 1)} and all other variables in diagram.
+
+\subsubsection{Mortise for collar tie tenon}
+
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/collar_tie_tenons_into_rafters}
+\end{center}
+
+At $r_3$, mark out \Sexpr{collar_tie_rafter_shoulder_depth}-in shoulder and verify that $\theta_3$ = \Sexpr{round(theta3_degrees, 1)} and all other variables in diagram. 
+
+\subsubsection{Mortise for strut tenon}
+<<>>==
+s9_imperial <- get_imperial_string(s9)
+@
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/strut_kp_overall}
+\end{center}
+
+For strut mortises into rafter, measure $s_3 + s_8$ from end of collar tie mortise (sans shoulder), which is 
+\[ s_3 + s_8 = \Sexpr{s3_plus_s8} = \Sexpr{s3_plus_s8_imperial}.\]
+
+Mortise/tenon is \Sexpr{strut_tenon_into_rafter_thickness}-in thick, \Sexpr{strut_width}-in wide, and \Sexpr{strut_tenon_into_rafter_depth}-in deep. Verify that $s_9$ = \Sexpr{s9_imperial}. 
+
+\subsubsection{Tenon for KP mortise}
+
+  \begin{center}
+	\includegraphics[width=0.4\textwidth]{images/rafter_layout}
+\end{center}
+Numbers below correspond to diagram. \textbf{There are 11 steps. The diagram hardcodes 3", ignore that.}
+
+\vspace{0.25cm}
+
+\begin{enumerate}
+  \item $k_{14}$ = \text{\Sexpr{k14_imperial}} should have been marked out already. 
+  \item Mark out $\theta_6$ = \Sexpr{round(theta6_degrees,1)} and verify rafter tenon depth into KP (\text{\Sexpr{rafter_tenon_depth_into_kp_imperial}}).
+  \item Mark $90^\circ$ (\textbf{this angle is hardcoded as 90}).
+  \item Verify $k_{10} = $  \text{\Sexpr{k10_imperial}}.
+  \item Measure $k_{13} = $ \text{\Sexpr{k13_imperial}}.
+  \item Measure $k_7 = $ \text{\Sexpr{k7_imperial}}.
+  \item Mark up to $k_{14}$ point.
+  \item Verify $k_3 = $ \text{\Sexpr{k3_imperial}}.
+  \item Cut off sections.
+  \item Create tenons at \Sexpr{rafter_tenon_thickness}-in thick. 
+\end{enumerate}
+
+
+\textbf{TODO rafters will house purlins - account for those also when purlin nos is finalized.}
+
+
+\newpage
+
+\subsection{Kingpost}\label{kp-layout-and-cuts}
+\subsubsection{Assumptions}
+<<echo=T>>==
+kp_depth <- 6
+kp_top_tenon_thickness <- 1.5
+@
+
+% \subsubsection{Imported variables}
+% 
+% 
+% \begin{itemize}
+%   \item \verb+k4+ = \Sexpr{k4} from \Cref{kp-rafter-joints-calculations}
+%   \item \verb+k3+ = \Sexpr{k3} from \Cref{kp-rafter-joints-calculations}
+%   \item \verb+strut_height_above_collar_tie+ = \Sexpr{strut_height_above_collar_tie} from \Cref{strut-kp-connections-assumptions}
+%   \item \verb+kp_top_tenon_length+ = \Sexpr{kp_top_tenon_length} from \Cref{kp-collar-tie-assumptions}
+%   \item \verb+kp_part+ = \Sexpr{kp_part} from \Cref{ridge-shape-and-dimensions-assumptions}
+%   \item \verb+collar_tie_height+ = \Sexpr{collar_tie_height} from \Cref{kp-collar-tie-assumptions}
+%   \item \verb+kp_through_tenon_length+ = \Sexpr{kp_through_tenon_length} from \Cref{kp-collar-tie-assumptions}
+%   \item \verb+kp_flare+ = \Sexpr{kp_flare} from \Cref{strut-kp-connections-assumptions}
+%   \item \verb+kp_rafter_shoulder_depth+ = \Sexpr{kp_rafter_shoulder_depth} from \Cref{kp-rafter-joints-assumptions}
+%   \item \verb+kp_total_height_imperial+ = \Sexpr{kp_total_height_imperial} from \Cref{kp-collar-tie-calculations}
+%   \item \verb+kp_width_bottom+ = \Sexpr{kp_width_bottom} from \Cref{strut-kp-connections-assumptions}
+%   \item \verb+rafter_tenon_thickness+ = \Sexpr{rafter_tenon_thickness} from \Cref{kp-rafter-joints-assumptions}
+%   \item \verb+strut_tenon_into_kp_depth+ = \Sexpr{strut_tenon_into_kp_depth} from \Cref{strut-kp-connections-assumptions}
+%   \item \verb+strut_tenon_into_kp_thickness+ = \Sexpr{strut_tenon_into_kp_thickness} from \Cref{strut-kp-connections-assumptions}
+% \end{itemize}
+
+
+<<>>==
+k17 <- k4 - s13 - strut_height_above_collar_tie
+mill_until_here <- kp_top_tenon_length + kp_part + k3 + k17
+mill_until_here_imperial <- get_imperial_string(mill_until_here)
+s13_imperial <- get_imperial_string(s13)
+s15_imperial <- get_imperial_string(s15)
+k17_imperial <- get_imperial_string(k17)
+kp_bottom_tenon_length <- collar_tie_height + kp_through_tenon_length
+k11_imperial <- get_imperial_string(k11)
+k12_imperial <- get_imperial_string(k12)
+k10_imperial <- get_imperial_string(k10)
+k15_imperial <- get_imperial_string(k15)
+s16_imperial <- get_imperial_string(s16)
+@
+
+\begin{center}\fbox{The diagrams have some hardcoded values - ignore those.}\end{center}
+
+\begin{figure}[h]
+    \fbox{\includegraphics[width=0.45\textwidth]{images/kp_layout_and_cuts}}   
+    \hspace{30px}
+    \fbox{\includegraphics[width=0.4\textwidth]{images/kp_mortise_for_rafter}}
+    \caption{Overall cuts + mortise for rafter}
+\end{figure}
+
+
+\begin{enumerate}
+  \item KP total length = \Sexpr{kp_total_height_imperial}.
+  \item Mill a \Sexpr{kp_depth}$\times$\Sexpr{kp_width_bottom}, with length as above. 
+  \item Mill off \Sexpr{kp_flare} inch on both sides, from top until \Sexpr{mill_until_here} = \Sexpr{mill_until_here_imperial}. 
+  \item Transitional area = $s_{13}$ = \Sexpr{s13_imperial}; chisel or saw this out, and verify that $s_{15}$ = \Sexpr{s15_imperial}.
+  \item Mark out from top: KP top tenon length = \Sexpr{kp_top_tenon_length}, KP part = \Sexpr{kp_part}, $k_3$ = \Sexpr{k3_imperial}, verify that $k_{17}$ = \Sexpr{k17_imperial}. Mark $s_{13}$ = \Sexpr{s13_imperial}, strut height above collar tie = \Sexpr{strut_height_above_collar_tie}, and collar tie height = \Sexpr{collar_tie_height}, and finally, through tenon length = \Sexpr{kp_through_tenon_length}.
+  \item Cut top tenon at thickness = \Sexpr{kp_top_tenon_thickness} and length \Sexpr{kp_top_tenon_length}.
+  \item Cut bottom tenon at \Sexpr{kp_bottom_tenon_length} inches long.
+  \item At $k_3$ mortise, mark out $k_{11}$ = \Sexpr{k11_imperial} and $k_{12}$ = \Sexpr{k12_imperial}. 
+  \item Mark out \Sexpr{kp_rafter_shoulder_depth} inch shoulder down the sides. 
+  \item Mark $k_{10}$ = \Sexpr{k10_imperial} and $k_{15}$ = \Sexpr{k15_imperial}. 
+  \item Drill straight at $k_{10}$, \Sexpr{rafter_tenon_thickness}-inch mortise and create angled mortise at $k_{15}$. 
+  \item Create shoulder using $k_{11}$ and $k_{12}$ measurements above. 
+  \item For strut mortises, verify $s_{15}$ = \Sexpr{s15_imperial}.
+  \item Mark out $s_{16}$ = \Sexpr{s16_imperial} and $s_{17}$ = \Sexpr{s17_imperial}. Note that $s_{15} = s_{16} + s_{17}$. 
+  \item Drill \Sexpr{strut_tenon_into_kp_thickness}-inch thick mortises at $90^\circ$ along $s_{17}$ and angled along $s_{16}$. Mortises are \Sexpr{strut_tenon_into_kp_depth} inches deep. Use some sort of right-angle guide for the drill since the face being drilled into is at an angle. 
+\end{enumerate}
+
+\begin{figure}[h]
+    \fbox{\includegraphics[width=0.45\textwidth]{images/strut_kp_detail}}   
+    \hspace{30px}
+    \fbox{\includegraphics[width=0.4\textwidth]{images/strut_kp_tenon_detail}}
+    \caption{Mortises for struts into KP (the one on the right is actually for tenons but usable for mortises)}
+\end{figure}
+
+\newpage
+
+
+\subsection{Collar tie}
+<<>>==
+c1_imperial <- get_imperial_string(c1)
+c2_imperial <- get_imperial_string(c2)
+r11_imperial <- get_imperial_string(r11)
+r9_imperial <- get_imperial_string(r9)
+@
+
+\begin{figure}[h]       
+    \fbox{\includegraphics[width=0.39\textwidth]{images/ct_cut_plan}}   
+    \hspace{30px}
+    \fbox{\includegraphics[width=0.46\textwidth]{images/collar_tie_tenons_into_rafters}}
+    \caption{Tenons into rafters}
+\end{figure}
+
+
+<<>>==
+brace_end_to_kp_mortise <- collar_tie_length/2 - kp_width_bottom/2 - (c2 + b2 + b9)
+brace_end_to_kp_mortise_imperial <- get_imperial_string(brace_end_to_kp_mortise)
+b2_imperial <- get_imperial_string(b2)
+b9_imperial <- get_imperial_string(b9)
+@
+
+
+\begin{enumerate}
+  \item Cut beam to \Sexpr{collar_tie_depth}$\times$\Sexpr{collar_tie_height} at \Sexpr{collar_tie_length_imperial} long. Note that $\text{CT length }= c_1\times 2 + \Sexpr{kp_width_bottom} + c_2\times 2$. 
+  \item Mark out $c_2$ = \Sexpr{c2_imperial} at both ends.
+  \item Mark out on the sides, shoulder depth = \Sexpr{collar_tie_rafter_shoulder_depth} and full tenon depth = \Sexpr{collar_tie_tenon_into_rafter_depth}.
+  \item Mark $r_{11}$ = \Sexpr{r11_imperial} and then $r_9$ = \Sexpr{r9_imperial}. 
+  \item Connect line to shoulder and verify that $\theta_3$ = \Sexpr{round(theta3_degrees, 1)}. 
+  \item Cut off sections and create \Sexpr{collar_tie_tenon_into_rafter_thickness}-inch thick tenons. 
+  \item Mark out $c_1$ = \Sexpr{c1_imperial} from both sides and verify that the middle section measures \Sexpr{kp_width_bottom} inches.
+  \item Cut through mortise at \Sexpr{kp_through_tenon_thickness}-in thick.
+  % \item For KP tenons into collar tie see \Cref{kp-layout-and-cuts}, p. \pageref{kp-layout-and-cuts}. 
+  \item Mark out $b_2$ = \Sexpr{b2_imperial}, $b_9$ = \Sexpr{b9_imperial}, and verify that distance between brace end to kp mortise beginning is \Sexpr{brace_end_to_kp_mortise_imperial}. 
+  \item Cut mortises for braces as shown. 
+\end{enumerate}
+
+\begin{figure}[h]
+    \fbox{\includegraphics[width=0.4\textwidth]{images/braces_overall}}   
+    \hspace{30px}
+    \fbox{\includegraphics[width=0.4\textwidth]{images/braces_into_ct}}
+    \caption{Mortises for knee braces}
+\end{figure}
+
+\newpage
+\subsection{Struts}
+\begin{figure}[h]
+    \fbox{\includegraphics[width=0.57\textwidth]{images/strut_kp_overall}}   
+    \hspace{10px}
+    \fbox{\includegraphics[width=0.35\textwidth]{images/strut_kp_tenon_detail}}
+    \caption{Strut cuts}
+\end{figure}
+
+\begin{center}\fbox{There seems to be an extra $s_{18}$ in the diagram in the middle - not sure what that is.}\end{center}
+
+\begin{enumerate}
+  \item Strut length = strut tenon into rafter depth $+s_7 + s_{18} = $ \Sexpr{strut_length} = \text{\Sexpr{strut_length_imperial}}.
+  \item At $s_{18}$, mark out $\theta_{15} = $ \Sexpr{round(theta15_degrees, 1)}.
+  \item At \Sexpr{strut_tenon_into_kp_depth}-in mark $90^\circ$ and measure $s_{17} = $ \Sexpr{s17_imperial}.
+  \item Connect from $s_{17}$ end to other side of strut and verify $s_{19} = $\Sexpr{s19_imperial}.
+  \item Verify $\theta_{11} = $ \Sexpr{round(theta11_degrees, 1)} and $\theta_{13} = $ \Sexpr{round(theta13_degrees, 1)}. 
+  \item Draw tenon line, verify length is $s_{16} + s_{17}$ = \Sexpr{s16_plus_s17_imperial}.
+  \item Cut off sections shown.
+  \item Create tenons at \Sexpr{strut_tenon_into_kp_depth} inches deep and \Sexpr{strut_tenon_into_kp_thickness} inches thick. 
+  \item For strut tenons into rafter: tenon is \Sexpr{strut_tenon_into_rafter_thickness}-in thick, \Sexpr{strut_width}-in wide, and \Sexpr{strut_tenon_into_rafter_depth}-in deep. 
+\end{enumerate}
+
+
+
+
+\newpage
+\subsection{Braces}
+
+<<>>==
+brace_total_length <- b8 + b12 + b16
+brace_total_length_imperial <- get_imperial_string(brace_total_length)
+@
+
+\begin{figure}[h]
+    \fbox{\includegraphics[width=0.25\textwidth]{images/braces_overall}}   
+    \hspace{10px}
+    \fbox{\includegraphics[width=0.25\textwidth]{images/braces_into_ct}}
+    \hspace{10px}
+    \fbox{\includegraphics[width=0.33\textwidth]{images/braces_into_post}}
+    \caption{Braces}
+\end{figure}
+
+\begin{enumerate}
+  \item Brace length = $b_8 + b_{12} + b_{16} = $ \Sexpr{brace_total_length_imperial}. 
+  \item There are no shoulders; just cut according to diagrams/calculations above and verify the important $b_{X}$ variables. 
+\end{enumerate}
+
+
+\newpage
+
+<<>>==
+sw <- function(x) { # scale workshop
+  round(x/10,2)
+}
+@
+
+\section{Measurements for scale diagram}
+\begin{multicols}{2}
+Angles (static):
+\begin{itemize}
+  \item $\theta$ = 39.8
+  \item $\theta_1$ = 50.2
+\end{itemize}
+\columnbreak
+Angles (dynamic):
+\begin{itemize}
+  \item $\theta$ = \Sexpr{round(theta_degrees,1)}
+  \item $\theta_1$ = \Sexpr{round(theta1_degrees,1)}
+\end{itemize}
+\end{multicols}
+
+Scale for lengths is 1 cm = 10 inches. 
+
+\begin{multicols}{2}
+Lengths (static):
+\begin{itemize}
+  \item $b_2$ = 2.12
+  \item $b_3$ = 1.66
+  \item $b_8$ = 5.02
+  \item $h_1$ = 0.94
+  \item $h_2$ = 1.25
+  \item $h_4$ = 12.94
+  \item $k_3$ = 1.04
+  \item $k_{17}$ = 4.02
+  \item $s_{13}$ = 1.01
+  \item $x_1$ = 8
+  \item $x_2$ = 7.35
+  \item $x_3$ = 0.65
+  \item $x_6$ = 0.54
+  \item $x_8$ = 3.12
+  \item base to spring line = 9.72
+  \item brace width = 0.7
+  \item collar tie height = 0.8
+  \item ct/rafter shoulder = 0.1
+  \item kp part = 0.45
+  \item KP width at bottom = 1
+  \item KP width at top = 0.8
+  \item kp/rafter shoulder = 0.1
+  \item post width = 0.6
+  \item post/rafter shoulder = 0.1
+  \item purlin height = 0.7
+  \item purlin pocket depth = 0.1
+  \item rafter height = 0.8
+  \item ridge ht = 0.66
+  \item ridge straight part = 0.33
+  \item straight part KP below flare = 0.3
+  \item structure height = 18
+  \item structure width = 18
+  \item strut width = 0.7
+  \item through tenon length = 0.2
+\end{itemize}
+\columnbreak
+Lengths (dynamic; change strut/brace/post width, change marked):
+\begin{itemize}
+  \item $\bigstar$ $b_2$ = \Sexpr{sw(b2)}
+  \item $\bigstar$ $b_3$ = \Sexpr{sw(b3)}
+  \item $\bigstar$ $b_8$ = \Sexpr{sw(b8)}
+  \item $h_1$ = \Sexpr{sw(h1)}
+  \item $h_2$ = \Sexpr{sw(h2)}
+  \item $h_4$ = \Sexpr{sw(h4)}
+  \item $k_3$ = \Sexpr{sw(k3)}
+  \item $\bigstar$ $k_{17}$ = \Sexpr{sw(k17)}
+  \item $\bigstar$ $s_{13}$ = \Sexpr{sw(s13)}
+  \item $\bigstar$ $x_1$ = \Sexpr{sw(x1)}
+  \item $x_2$ = \Sexpr{sw(x2)}
+  \item $\bigstar$ $x_3$ = \Sexpr{sw(x3)}
+  \item $\bigstar$ $x_6$ = \Sexpr{sw(x6)}
+  \item $x_8$ = \Sexpr{sw(x8)}
+  \item base to spring line = \Sexpr{sw(base_to_spring_line)}
+  \item $\bigstar$ brace width = \Sexpr{sw(brace_width)}
+  \item collar tie height = \Sexpr{sw(collar_tie_height)}
+  \item ct/rafter shoulder = \Sexpr{sw(collar_tie_rafter_shoulder_depth)}
+  \item kp part = \Sexpr{sw(kp_part)}
+  \item KP width at bottom = \Sexpr{sw(kp_width_bottom)}
+  \item KP width at top = \Sexpr{sw(kp_width)}
+  \item kp/rafter shoulder = \Sexpr{sw(kp_rafter_shoulder_depth)}
+  \item $\bigstar$ post width = \Sexpr{sw(post_width)}
+  \item post/rafter shoulder = \Sexpr{sw(post_rafter_shoulder_depth)}
+  \item purlin height = \Sexpr{sw(purlin_height)}
+  \item purlin pocket depth = \Sexpr{sw(purlin_pocket)}
+  \item rafter height = \Sexpr{sw(rafter_height)}
+  \item ridge ht = \Sexpr{sw(ridge_ht)}
+  \item ridge straight part = \Sexpr{sw(ridge_part)}
+  \item straight part KP below flare = \Sexpr{sw(strut_height_above_collar_tie)}
+  \item structure height = \Sexpr{sw(structure_height)}
+  \item structure width = \Sexpr{sw(width_of_structure)}
+  \item $\bigstar$ strut width = \Sexpr{sw(strut_width)}
+  \item through tenon length = \Sexpr{sw(kp_through_tenon_length)}
+\end{itemize}
+\end{multicols}
+
+\newpage
+
+
+
+
+
+\end{document}
