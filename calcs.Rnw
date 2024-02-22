@@ -7,6 +7,7 @@
 \usepackage{multicol}
 \usepackage{amssymb}
 \usepackage{enumitem}
+\usepackage{xfrac}
 \usepackage[colorlinks=true, linkcolor=red]{hyperref}
 \usepackage[nameinlink]{cleveref}
 \crefformat{section}{\S#2#1#3}
@@ -155,14 +156,16 @@ and this is the milling height for this beam. Finally, ridge cross-sectional are
 
 
 <<echo=T>>==
-width_of_structure <- 15*12
-width_of_structure_half <- width_of_structure/2
+structure_width <- 15*12
+structure_height <- 15*12
+structure_width_half <- structure_width/2
 post_width <- 8
 rafter_height <- 8
 collar_tie_height <- 8
 kp_through_tenon_length <- 2
 kp_top_tenon_length <- 3
-
+dpct <- 10 # distance along rafter between post and collar tie
+overhang_sides <- 24 # inches
 @
 We start with purlin height above rafters, and the width of the structure. Ignore collar tie for now.
 
@@ -177,30 +180,63 @@ We start with purlin height above rafters, and the width of the structure. Ignor
 \subsection{Calculations} \label{kp-collar-tie-calculations}
 
 <<>>==
-###
-# NEW AFTER FIXING ERRORS
-###
-
-x1 <- width_of_structure_half - post_width - (kp_width/2)
+x1 <- structure_width_half - post_width - (kp_width/2)
 h1 <- purlin_height_above_rafter/sin(theta)
 h2 <- rafter_height/sin(theta)
 
-x3 <- h2 - post_width # WRONG - h2 is not the variable needed here. 
-x2 <- x1 - x3 # wrong because x3 
-h3 <- x2/cos(theta) # wrong because x2
-h4 <- (h1 + post_width + x1 + (kp_width/2))/cos(theta) # wrong because assumes h1 goes till post
-o1 <- sqrt(h4^2 - (h1 + post_width + x1 + (kp_width/2))^2) # wrong because h4
-x4 <- sqrt(h3^2 - x2^2) # wrong because h3
-o2 <- rafter_height/sin(theta1)
+################# REPLACE
 
-kp_height_to_spring_line_excl_top_tenon <- kp_part + o2 + x4 # wrong because x4
+a1 <- 0.5 * structure_width
+a2 <- a1/tan(theta1)
+a3 <- purlin_height_above_rafter/sin(theta1)
+a4 <- rafter_height/sin(theta1)
+a5 <- structure_height - a2 - a3 - a4
+a6 <- tan(theta) * post_width
+a7 <- a5 + a6
+a13 <- cos(theta) * dpct
+x5 <- a13
+a8 <- a13 + post_width
+x2 <- 0.5 * structure_width - 0.5 * kp_width - a8
+h3 <- x2/cos(theta)
+x1 <- 0.5*structure_width - post_width - 0.5*kp_width
+a11 <- collar_tie_height/sin(theta)
+a12 <- h3 - a11
+h4 <- a1/sin(theta1)
+x4 <- tan(theta) * x2
+h1 <- purlin_height_above_rafter/sin(theta)
+o2 <- rafter_height/sin(theta1)
+x3 <- x1 - x2
+h2 <- rafter_height/sin(theta)
+o1 <- c + ridge_part + kp_part + o2 + x4
+x8 <- overhang_sides/cos(theta)
+h6_plus_x8 <- (overhang_sides + (0.5 * structure_width - 0.5 * kp_width))/cos(theta)
+h6 <- h6_plus_x8 - x8
+x6 <- tan(theta) * x5
+h5 <- dpct
+
+
+
+# THESE WERE WRONG
+# x3 <- h2 - post_width # WRONG - h2 is not the variable needed here. 
+# x2 <- x1 - x3 # wrong because x3 
+# h3 <- x2/cos(theta) # wrong because x2
+# h4 <- (h1 + post_width + x1 + (kp_width/2))/cos(theta) # wrong because assumes h1 goes till post
+# o1 <- sqrt(h4^2 - (h1 + post_width + x1 + (kp_width/2))^2) # wrong because h4
+# x4 <- sqrt(h3^2 - x2^2) # wrong because h3
+# o2 <- rafter_height/sin(theta1)
+# x5 <- x1 - x2
+# h5 <- x5/cos(theta)
+
+##################
+
+
+kp_height_to_spring_line_excl_top_tenon <- kp_part + o2 + x4
 kp_height_to_spring_line_excl_top_tenon_imperial <- get_imperial_string(kp_height_to_spring_line_excl_top_tenon)
 kp_height_excl_tenons <- kp_height_to_spring_line_excl_top_tenon - collar_tie_height
 kp_height_excl_tenons_imperial <- get_imperial_string(kp_height_excl_tenons)
 kp_total_height <- kp_height_excl_tenons + collar_tie_height +  kp_through_tenon_length + kp_top_tenon_length
 kp_total_height_imperial <- get_imperial_string(kp_total_height)
-x5 <- x1 - x2
-h5 <- x5/cos(theta)
+
 o1_alt <- ridge_ht+kp_part+o2+x4
 ct_tenon_lengths_rough <- 5
 ct_length_rough <- x2*2+kp_width+ct_tenon_lengths_rough*2
@@ -211,17 +247,14 @@ ct_length_rough <- x2*2+kp_width+ct_tenon_lengths_rough*2
 	\includegraphics[width=0.55\textwidth]{images/kingpost_and_collar_tie_lengths}
 \end{center}
 
-The variable $x_1$ can be found by inspection; just subtract post width and half KP width from half the structure width: 
-\[ x_1 = \Sexpr{x1}\]
-and we have 
-\[ o_2 = \text{rafter height}/\sin\theta_1 = \Sexpr{o2} \]
-Then, 
 \begin{align*}
+x_1 &= \sfrac{1}{2} \text{ structure width} - \text{post width} - \sfrac{1}{2} \text{ kingpost width} = \Sexpr{x1}\\
+o_2 &= \text{rafter height}/\sin\theta_1 = \Sexpr{o2}\\
 h_2 &= \text{rafter height}/\sin\theta = \Sexpr{h2}\\
-x_3 &= h_2 - \text{post width} = \Sexpr{x3}\\
-x_2 &= x_1 - x_3 = \Sexpr{x2}\\
+x_3 &= x_1 - x_2 = \Sexpr{x3}\\
+x_2 &= \sfrac{1}{2} \text{ structure width} - \sfrac{1}{2}\text{ kingpost width} - a_8 = \Sexpr{x2}\\
 h_3 &= x_2/\cos\theta = \Sexpr{h3}\\
-x_4 &= \sqrt{h_3^2 - x_2^2} = \Sexpr{x4}
+x_4 &= \tan\theta \times x_2  = \Sexpr{x4}
 \end{align*}
 
 Using $x_4$ from above, KP from top (excluding tenon) to spring line is 
@@ -233,11 +266,13 @@ Using $x_4$ from above, KP from top (excluding tenon) to spring line is
 We can also calculate for later:
 \begin{align*}
 h_1 &= \text{purlin height above rafters}/\sin\theta = \Sexpr{h1}\\
-h_4 &= (h_1 + \text{post width} + x_1 + \text{kingpost width}/2)/\cos\theta = \Sexpr{h4}\\
-o_1 &= \sqrt{h_4^2 - (h_1 + \text{post width} + x_1 + \text{kingpost width}/2)^2}  = \Sexpr{o1}
+h_4 &= a_1/\sin\theta  = \Sexpr{h4}\\
+o_1 &=  c + \text{ridge part} + \text{kp part} + o_2 + x_4 = \Sexpr{o1}
 \end{align*}
 
-Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4$, to get \Sexpr{o1_alt}, which should match the above. For diagram 2, we have $x_5 = x_1 - x_2 =$ \Sexpr{x5} $ \implies h_5 =x_5/\cos\theta = $ \Sexpr{h5}, which is enough space between post and collar tie. Since KP from top (excluding tenon) to spring line is \Sexpr{kp_height_to_spring_line_excl_top_tenon}, and bottom of collar tie is at the spring line, KP length excluding \textbf{both} tenons is \Sexpr{kp_height_to_spring_line_excl_top_tenon} - \Sexpr{collar_tie_height} (collar tie height) = \Sexpr{kp_height_excl_tenons}. Assuming a \Sexpr{kp_through_tenon_length}-inch through tenon at bottom and \Sexpr{kp_top_tenon_length}-inch tenon at the top, we have 
+Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4$, to get \Sexpr{o1_alt}, which should match the above. 
+
+Since KP from top (excluding tenon) to spring line is \Sexpr{kp_height_to_spring_line_excl_top_tenon}, and bottom of collar tie is at the spring line, KP length excluding \textbf{both} tenons is \Sexpr{kp_height_to_spring_line_excl_top_tenon} - \Sexpr{collar_tie_height} (collar tie height) = \Sexpr{kp_height_excl_tenons}. Assuming a \Sexpr{kp_through_tenon_length}-inch through tenon at bottom and \Sexpr{kp_top_tenon_length}-inch tenon at the top, we have 
 
 \[ \boxed{\text{KP length }= \Sexpr{kp_height_excl_tenons} + \Sexpr{collar_tie_height} + \Sexpr{kp_through_tenon_length} + \Sexpr{kp_top_tenon_length} = \Sexpr{kp_total_height} =  \text{\Sexpr{kp_total_height_imperial}}}.\]
 
@@ -257,7 +292,6 @@ Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4
 \subsection{Assumptions}\label{posts-rafters-assumptions}
 <<echo=T>>==
 structure_height <- 15*12 # top of ridge to base
-overhang_sides <- 24 # inches
 rafter_tenons_preliminary <- 3 # assuming 3 inch tenons; to be made precise later
 @
 
@@ -266,7 +300,7 @@ rafter_tenons_preliminary <- 3 # assuming 3 inch tenons; to be made precise late
 \begin{itemize}
   \item $h_5$ from \Cref{kp-collar-tie-calculations}.
   \item $x_5$ from \Cref{kp-collar-tie-calculations}.
-  \item ``top of ridge to spring line'' is comprised of ``kp height to spring line excl top tenon'' from \Cref{kp-collar-tie-calculations} and ``ridge height'' from \Cref{ridge-shape-and-dimensions-calculations}.
+  \item ``top of ridge to spring line'' is ``kp height to spring line excl top tenon'' from \Cref{kp-collar-tie-calculations} and ``ridge height'' from \Cref{ridge-shape-and-dimensions-calculations}.
   \item Post width is from \Cref{kp-collar-tie-assumptions}.
   \item $x_1$ is from \Cref{kp-collar-tie-calculations}.
 \end{itemize}
@@ -279,20 +313,27 @@ rafter_tenons_preliminary <- 3 # assuming 3 inch tenons; to be made precise late
 \end{center}
 
 <<>>==
-x6 = sqrt(h5^2 - x5^2)
+
+
+########## WRONG - see above for new calcs
+# x6 = sqrt(h5^2 - x5^2)
+# x8 <- overhang_sides/cos(theta)
+# h6 <- (post_width+x1)/cos(theta)
+#########
+
+
 top_of_ridge_to_spring_line <- kp_height_to_spring_line_excl_top_tenon + ridge_ht
 base_to_spring_line <- structure_height - top_of_ridge_to_spring_line
 base_to_spring_line_imperial <- get_imperial_string(base_to_spring_line)
 post_height_excluding_tenons <- base_to_spring_line - x6
 post_height_excluding_tenons_imperial <- get_imperial_string(post_height_excluding_tenons)
-x8 <- overhang_sides/cos(theta)
-h6 <- (post_width+x1)/cos(theta)
 rafter_length_preliminary <- x8+h6+rafter_tenons_preliminary
 rafter_length_preliminary_imperial <- get_imperial_string(rafter_length_preliminary)
 @
 
-The triangle above with $x_5$ and $h_5$ has a third side, call it $x_6$, for which we have 
-\[ x_6 = \sqrt{h_5^2 - x_5^2} = \Sexpr{x6}. \]
+\[ x_6 = \tan\theta\times x_5 = \Sexpr{x6}. \]
+
+\begin{center}\fbox{\textbf{TODO DONE UNTIL HERE}}\end{center}
 
 From base to spring line is 
 \begin{align*}
@@ -309,7 +350,7 @@ See \Cref{posts-plan} for measurements including tenons.
 The structure has an overhang on both sides, which we take to be \Sexpr{overhang_sides} (cf \Cref{posts-rafters-assumptions}), and this allows us to calculate $x_8$ in the diagram: 
 \[ x_8 = \frac{24}{\cos\theta} = \Sexpr{x8}. \]
 
-The variable $h_6$ is just post width + $x_1$ divided by the cosine, so we have 
+Then, 
 \[ h_6 = \frac{\text{post width + }x_1}{\cos\theta} = \Sexpr{h6} \]
 
 So \textbf{rough} rafter length, assuming \Sexpr{rafter_tenons_preliminary}-inch tenons is 
@@ -775,7 +816,7 @@ collar_tie_length <- c1*2 + kp_width_bottom + c2*2
 collar_tie_length_imperial <- get_imperial_string(collar_tie_length)
 @
 
-TODO CURRENT
+\begin{center}\fbox{\textbf{TODO - SEE PAPER FOR THE d AND cc variables - feb 21 2024}}\end{center}
 
 <<>>==
 d <- (180-c1*2+10)/2
@@ -1383,7 +1424,7 @@ Angles (dynamic):
 Scale for lengths is 1 cm = 10 inches. 
 
 \begin{multicols}{2}
-Lengths (static):
+Lengths (static; version of 6-inch posts, and fat struts/braces):
 \begin{itemize}
   \item $b_2$ = 2.12
   \item $b_3$ = 1.66
@@ -1421,31 +1462,31 @@ Lengths (static):
   \item through tenon length = 0.2
 \end{itemize}
 \columnbreak
-Lengths (dynamic; change strut/brace/post width, change marked):
+Lengths (dynamic):
 \begin{itemize}
-  \item $\bigstar$ $b_2$ = \Sexpr{sw(b2)}
-  \item $\bigstar$ $b_3$ = \Sexpr{sw(b3)}
-  \item $\bigstar$ $b_8$ = \Sexpr{sw(b8)}
+  \item $b_2$ = \Sexpr{sw(b2)}
+  \item $b_3$ = \Sexpr{sw(b3)}
+  \item $b_8$ = \Sexpr{sw(b8)}
   \item $h_1$ = \Sexpr{sw(h1)}
   \item $h_2$ = \Sexpr{sw(h2)}
   \item $h_4$ = \Sexpr{sw(h4)}
   \item $k_3$ = \Sexpr{sw(k3)}
-  \item $\bigstar$ $k_{17}$ = \Sexpr{sw(k17)}
-  \item $\bigstar$ $s_{13}$ = \Sexpr{sw(s13)}
-  \item $\bigstar$ $x_1$ = \Sexpr{sw(x1)}
+  \item $k_{17}$ = \Sexpr{sw(k17)}
+  \item $s_{13}$ = \Sexpr{sw(s13)}
+  \item $x_1$ = \Sexpr{sw(x1)}
   \item $x_2$ = \Sexpr{sw(x2)}
-  \item $\bigstar$ $x_3$ = \Sexpr{sw(x3)}
-  \item $\bigstar$ $x_6$ = \Sexpr{sw(x6)}
+  \item $x_3$ = \Sexpr{sw(x3)}
+  \item $x_6$ = \Sexpr{sw(x6)}
   \item $x_8$ = \Sexpr{sw(x8)}
   \item base to spring line = \Sexpr{sw(base_to_spring_line)}
-  \item $\bigstar$ brace width = \Sexpr{sw(brace_width)}
+  \item brace width = \Sexpr{sw(brace_width)}
   \item collar tie height = \Sexpr{sw(collar_tie_height)}
   \item ct/rafter shoulder = \Sexpr{sw(collar_tie_rafter_shoulder_depth)}
   \item kp part = \Sexpr{sw(kp_part)}
   \item KP width at bottom = \Sexpr{sw(kp_width_bottom)}
   \item KP width at top = \Sexpr{sw(kp_width)}
   \item kp/rafter shoulder = \Sexpr{sw(kp_rafter_shoulder_depth)}
-  \item $\bigstar$ post width = \Sexpr{sw(post_width)}
+  \item post width = \Sexpr{sw(post_width)}
   \item post/rafter shoulder = \Sexpr{sw(post_rafter_shoulder_depth)}
   \item purlin height = \Sexpr{sw(purlin_height)}
   \item purlin pocket depth = \Sexpr{sw(purlin_pocket)}
@@ -1454,8 +1495,8 @@ Lengths (dynamic; change strut/brace/post width, change marked):
   \item ridge straight part = \Sexpr{sw(ridge_part)}
   \item straight part KP below flare = \Sexpr{sw(strut_height_above_collar_tie)}
   \item structure height = \Sexpr{sw(structure_height)}
-  \item structure width = \Sexpr{sw(width_of_structure)}
-  \item $\bigstar$ strut width = \Sexpr{sw(strut_width)}
+  \item structure width = \Sexpr{sw(structure_width)}
+  \item strut width = \Sexpr{sw(strut_width)}
   \item through tenon length = \Sexpr{sw(kp_through_tenon_length)}
 \end{itemize}
 \end{multicols}
