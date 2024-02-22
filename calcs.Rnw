@@ -164,7 +164,7 @@ rafter_height <- 8
 collar_tie_height <- 8
 kp_through_tenon_length <- 2
 kp_top_tenon_length <- 3
-dpct <- 10 # distance along rafter between post and collar tie
+dpct <- 5.853 # distance along rafter between post and collar tie. The value retains consistency with previous version. CAN BE CHANGED IF NEEDED
 overhang_sides <- 24 # inches
 @
 We start with purlin height above rafters, and the width of the structure. Ignore collar tie for now.
@@ -333,8 +333,6 @@ rafter_length_preliminary_imperial <- get_imperial_string(rafter_length_prelimin
 
 \[ x_6 = \tan\theta\times x_5 = \Sexpr{x6}. \]
 
-\begin{center}\fbox{\textbf{TODO DONE UNTIL HERE}}\end{center}
-
 From base to spring line is 
 \begin{align*}
 \text{structure height - (top of ridge to spring line)} &= \Sexpr{structure_height} - \Sexpr{top_of_ridge_to_spring_line}\\
@@ -342,15 +340,13 @@ From base to spring line is
 &= \text{\Sexpr{base_to_spring_line_imperial}}
 \end{align*}
 
-Now, $x_6$ extends from spring line to the higher side of where the post meets rafters. Therefore, post height excluding tenons is 
+Post height excluding tenons is 
 \[ \Sexpr{base_to_spring_line} - \Sexpr{x6} = \Sexpr{post_height_excluding_tenons} = \text{\Sexpr{post_height_excluding_tenons_imperial}}  \]
 
-See \Cref{posts-plan} for measurements including tenons. 
+$x_8$ depends on overhang: 
+\[ x_8 = \frac{\text{overhang}}{\cos\theta} = \Sexpr{x8}. \]
 
-The structure has an overhang on both sides, which we take to be \Sexpr{overhang_sides} (cf \Cref{posts-rafters-assumptions}), and this allows us to calculate $x_8$ in the diagram: 
-\[ x_8 = \frac{24}{\cos\theta} = \Sexpr{x8}. \]
-
-Then, 
+Also, 
 \[ h_6 = \frac{\text{post width + }x_1}{\cos\theta} = \Sexpr{h6} \]
 
 So \textbf{rough} rafter length, assuming \Sexpr{rafter_tenons_preliminary}-inch tenons is 

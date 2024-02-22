@@ -57,6 +57,7 @@
 \usepackage{multicol}
 \usepackage{amssymb}
 \usepackage{enumitem}
+\usepackage{xfrac}
 \usepackage[colorlinks=true, linkcolor=red]{hyperref}
 \usepackage[nameinlink]{cleveref}
 \crefformat{section}{\S#2#1#3}
@@ -159,13 +160,16 @@ and this is the milling height for this beam. Finally, ridge cross-sectional are
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{width_of_structure} \hlkwb{<-} \hlnum{15}\hlopt{*}\hlnum{12}
-\hlstd{width_of_structure_half} \hlkwb{<-} \hlstd{width_of_structure}\hlopt{/}\hlnum{2}
+\hlstd{structure_width} \hlkwb{<-} \hlnum{15}\hlopt{*}\hlnum{12}
+\hlstd{structure_height} \hlkwb{<-} \hlnum{15}\hlopt{*}\hlnum{12}
+\hlstd{structure_width_half} \hlkwb{<-} \hlstd{structure_width}\hlopt{/}\hlnum{2}
 \hlstd{post_width} \hlkwb{<-} \hlnum{8}
 \hlstd{rafter_height} \hlkwb{<-} \hlnum{8}
 \hlstd{collar_tie_height} \hlkwb{<-} \hlnum{8}
 \hlstd{kp_through_tenon_length} \hlkwb{<-} \hlnum{2}
 \hlstd{kp_top_tenon_length} \hlkwb{<-} \hlnum{3}
+\hlstd{dpct} \hlkwb{<-} \hlnum{5.853} \hlcom{# distance along rafter between post and collar tie}
+\hlstd{overhang_sides} \hlkwb{<-} \hlnum{24} \hlcom{# inches}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -188,17 +192,14 @@ We start with purlin height above rafters, and the width of the structure. Ignor
 	\includegraphics[width=0.55\textwidth]{images/kingpost_and_collar_tie_lengths}
 \end{center}
 
-The variable $x_1$ can be found by inspection; just subtract post width and half KP width from half the structure width: 
-\[ x_1 = 78\]
-and we have 
-\[ o_2 = \text{rafter height}/\sin\theta_1 = 10.4137 \]
-Then, 
 \begin{align*}
+x_1 &= \sfrac{1}{2} \text{ structure width} - \text{post width} - \sfrac{1}{2} \text{ kingpost width} = 78\\
+o_2 &= \text{rafter height}/\sin\theta_1 = 10.4137\\
 h_2 &= \text{rafter height}/\sin\theta = 12.4964\\
-x_3 &= h_2 - \text{post width} = 4.4964\\
-x_2 &= x_1 - x_3 = 73.5036\\
+x_3 &= x_1 - x_2 = 4.4964\\
+x_2 &= \sfrac{1}{2} \text{ structure width} - \sfrac{1}{2}\text{ kingpost width} - a_8 = 73.5036\\
 h_3 &= x_2/\cos\theta = 95.6802\\
-x_4 &= \sqrt{h_3^2 - x_2^2} = 61.253
+x_4 &= \tan\theta \times x_2  = 61.253
 \end{align*}
 
 Using $x_4$ from above, KP from top (excluding tenon) to spring line is 
@@ -210,11 +211,13 @@ Using $x_4$ from above, KP from top (excluding tenon) to spring line is
 We can also calculate for later:
 \begin{align*}
 h_1 &= \text{purlin height above rafters}/\sin\theta = 9.3723\\
-h_4 &= (h_1 + \text{post width} + x_1 + \text{kingpost width}/2)/\cos\theta = 129.3537\\
-o_1 &= \sqrt{h_4^2 - (h_1 + \text{post width} + x_1 + \text{kingpost width}/2)^2}  = 82.8102
+h_4 &= a_1/\sin\theta  = 117.1537\\
+o_1 &=  c + \text{ridge part} + \text{kp part} + o_2 + x_4 = 82.8102
 \end{align*}
 
-Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4$, to get 82.8102, which should match the above. For diagram 2, we have $x_5 = x_1 - x_2 =$ 4.4964 $ \implies h_5 =x_5/\cos\theta = $ 5.853, which is enough space between post and collar tie. Since KP from top (excluding tenon) to spring line is 76.1667, and bottom of collar tie is at the spring line, KP length excluding \textbf{both} tenons is 76.1667 - 8 (collar tie height) = 68.1667. Assuming a 2-inch through tenon at bottom and 3-inch tenon at the top, we have 
+Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4$, to get 82.8102, which should match the above. 
+
+Since KP from top (excluding tenon) to spring line is 76.1667, and bottom of collar tie is at the spring line, KP length excluding \textbf{both} tenons is 76.1667 - 8 (collar tie height) = 68.1667. Assuming a 2-inch through tenon at bottom and 3-inch tenon at the top, we have 
 
 \[ \boxed{\text{KP length }= 68.1667 + 8 + 2 + 3 = 81.1667 =  \text{6' 9" 5/32}}.\]
 
@@ -236,7 +239,6 @@ Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{structure_height} \hlkwb{<-} \hlnum{15}\hlopt{*}\hlnum{12} \hlcom{# top of ridge to base}
-\hlstd{overhang_sides} \hlkwb{<-} \hlnum{24} \hlcom{# inches}
 \hlstd{rafter_tenons_preliminary} \hlkwb{<-} \hlnum{3} \hlcom{# assuming 3 inch tenons; to be made precise later}
 \end{alltt}
 \end{kframe}
@@ -247,7 +249,7 @@ Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4
 \begin{itemize}
   \item $h_5$ from \Cref{kp-collar-tie-calculations}.
   \item $x_5$ from \Cref{kp-collar-tie-calculations}.
-  \item ``top of ridge to spring line'' is comprised of ``kp height to spring line excl top tenon'' from \Cref{kp-collar-tie-calculations} and ``ridge height'' from \Cref{ridge-shape-and-dimensions-calculations}.
+  \item ``top of ridge to spring line'' is ``kp height to spring line excl top tenon'' from \Cref{kp-collar-tie-calculations} and ``ridge height'' from \Cref{ridge-shape-and-dimensions-calculations}.
   \item Post width is from \Cref{kp-collar-tie-assumptions}.
   \item $x_1$ is from \Cref{kp-collar-tie-calculations}.
 \end{itemize}
@@ -261,8 +263,7 @@ Calculating $o_1$ a different way: add up ridge height, kp part, $o_2$, and $x_4
 
 
 
-The triangle above with $x_5$ and $h_5$ has a third side, call it $x_6$, for which we have 
-\[ x_6 = \sqrt{h_5^2 - x_5^2} = 3.747. \]
+\[ x_6 = \tan\theta\times x_5 = 3.747. \]
 
 From base to spring line is 
 \begin{align*}
@@ -271,15 +272,13 @@ From base to spring line is
 &= \text{8' 1" 3/16}
 \end{align*}
 
-Now, $x_6$ extends from spring line to the higher side of where the post meets rafters. Therefore, post height excluding tenons is 
+Post height excluding tenons is 
 \[ 97.1898 - 3.747 = 93.4428 = \text{7' 9" 7/16}  \]
 
-See \Cref{posts-plan} for measurements including tenons. 
+$x_8$ depends on overhang: 
+\[ x_8 = \frac{\text{overhang}}{\cos\theta} = 31.241. \]
 
-The structure has an overhang on both sides, which we take to be 24 (cf \Cref{posts-rafters-assumptions}), and this allows us to calculate $x_8$ in the diagram: 
-\[ x_8 = \frac{24}{\cos\theta} = 31.241. \]
-
-The variable $h_6$ is just post width + $x_1$ divided by the cosine, so we have 
+Also, 
 \[ h_6 = \frac{\text{post width + }x_1}{\cos\theta} = 111.9469 \]
 
 So \textbf{rough} rafter length, assuming 3-inch tenons is 
@@ -674,6 +673,9 @@ The calculations are
 
 \subsection{Calculations}
 
+
+
+\begin{center}\fbox{\textbf{TODO - SEE PAPER FOR THE d AND cc variables - feb 21 2024}}\end{center}
 
 
 14.4018
@@ -1211,7 +1213,7 @@ Angles (dynamic):
 Scale for lengths is 1 cm = 10 inches. 
 
 \begin{multicols}{2}
-Lengths (static):
+Lengths (static; version of 6-inch posts, and fat struts/braces):
 \begin{itemize}
   \item $b_2$ = 2.12
   \item $b_3$ = 1.66
@@ -1249,31 +1251,31 @@ Lengths (static):
   \item through tenon length = 0.2
 \end{itemize}
 \columnbreak
-Lengths (dynamic; change strut/brace/post width, change marked):
+Lengths (dynamic):
 \begin{itemize}
-  \item $\bigstar$ $b_2$ = 2.32
-  \item $\bigstar$ $b_3$ = 1.86
-  \item $\bigstar$ $b_8$ = 4.62
+  \item $b_2$ = 2.32
+  \item $b_3$ = 1.86
+  \item $b_8$ = 4.62
   \item $h_1$ = 0.94
   \item $h_2$ = 1.25
-  \item $h_4$ = 12.94
+  \item $h_4$ = 11.72
   \item $k_3$ = 1.04
-  \item $\bigstar$ $k_{17}$ = 4.33
-  \item $\bigstar$ $s_{13}$ = 0.7
-  \item $\bigstar$ $x_1$ = 7.8
+  \item $k_{17}$ = 4.33
+  \item $s_{13}$ = 0.7
+  \item $x_1$ = 7.8
   \item $x_2$ = 7.35
-  \item $\bigstar$ $x_3$ = 0.45
-  \item $\bigstar$ $x_6$ = 0.37
+  \item $x_3$ = 0.45
+  \item $x_6$ = 0.37
   \item $x_8$ = 3.12
   \item base to spring line = 9.72
-  \item $\bigstar$ brace width = 0.5
+  \item brace width = 0.5
   \item collar tie height = 0.8
   \item ct/rafter shoulder = 0.1
   \item kp part = 0.45
   \item KP width at bottom = 1
   \item KP width at top = 0.8
   \item kp/rafter shoulder = 0.1
-  \item $\bigstar$ post width = 0.8
+  \item post width = 0.8
   \item post/rafter shoulder = 0.1
   \item purlin height = 0.7
   \item purlin pocket depth = 0.1
@@ -1283,7 +1285,7 @@ Lengths (dynamic; change strut/brace/post width, change marked):
   \item straight part KP below flare = 0.3
   \item structure height = 18
   \item structure width = 18
-  \item $\bigstar$ strut width = 0.5
+  \item strut width = 0.5
   \item through tenon length = 0.2
 \end{itemize}
 \end{multicols}
