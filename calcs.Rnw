@@ -184,8 +184,6 @@ x1 <- structure_width_half - post_width - (kp_width/2)
 h1 <- purlin_height_above_rafter/sin(theta)
 h2 <- rafter_height/sin(theta)
 
-################# REPLACE
-
 a1 <- 0.5 * structure_width
 a2 <- a1/tan(theta1)
 a3 <- purlin_height_above_rafter/sin(theta1)
@@ -209,26 +207,8 @@ x3 <- x1 - x2
 h2 <- rafter_height/sin(theta)
 o1 <- c + ridge_part + kp_part + o2 + x4
 x8 <- overhang_sides/cos(theta)
-h6_plus_x8 <- (overhang_sides + (0.5 * structure_width - 0.5 * kp_width))/cos(theta)
-h6 <- h6_plus_x8 - x8
+h6 <- ((overhang_sides + (0.5 * structure_width - 0.5 * kp_width))/cos(theta)) - x8
 x6 <- tan(theta) * x5
-h5 <- dpct
-
-
-
-# THESE WERE WRONG
-# x3 <- h2 - post_width # WRONG - h2 is not the variable needed here. 
-# x2 <- x1 - x3 # wrong because x3 
-# h3 <- x2/cos(theta) # wrong because x2
-# h4 <- (h1 + post_width + x1 + (kp_width/2))/cos(theta) # wrong because assumes h1 goes till post
-# o1 <- sqrt(h4^2 - (h1 + post_width + x1 + (kp_width/2))^2) # wrong because h4
-# x4 <- sqrt(h3^2 - x2^2) # wrong because h3
-# o2 <- rafter_height/sin(theta1)
-# x5 <- x1 - x2
-# h5 <- x5/cos(theta)
-
-##################
-
 
 kp_height_to_spring_line_excl_top_tenon <- kp_part + o2 + x4
 kp_height_to_spring_line_excl_top_tenon_imperial <- get_imperial_string(kp_height_to_spring_line_excl_top_tenon)
@@ -243,18 +223,26 @@ ct_length_rough <- x2*2+kp_width+ct_tenon_lengths_rough*2
 @
 
 
+% OLD diagram - wrong
+%\begin{center}
+%	\includegraphics[width=0.55\textwidth]{images/kingpost_and_collar_tie_lengths}
+%\end{center}
+
 \begin{center}
-	\includegraphics[width=0.55\textwidth]{images/kingpost_and_collar_tie_lengths}
+	\includegraphics[width=0.75\textwidth]{images/kingpost_and_collar_tie_lengths_new}
 \end{center}
 
 \begin{align*}
-x_1 &= \sfrac{1}{2} \text{ structure width} - \text{post width} - \sfrac{1}{2} \text{ kingpost width} = \Sexpr{x1}\\
-o_2 &= \text{rafter height}/\sin\theta_1 = \Sexpr{o2}\\
-h_2 &= \text{rafter height}/\sin\theta = \Sexpr{h2}\\
-x_3 &= x_1 - x_2 = \Sexpr{x3}\\
 x_2 &= \sfrac{1}{2} \text{ structure width} - \sfrac{1}{2}\text{ kingpost width} - a_8 = \Sexpr{x2}\\
 h_3 &= x_2/\cos\theta = \Sexpr{h3}\\
-x_4 &= \tan\theta \times x_2  = \Sexpr{x4}
+x_1 &= \sfrac{1}{2} \text{ structure width} - \text{post width} - \sfrac{1}{2} \text{ kingpost width} = \Sexpr{x1}\\
+x_4 &= \tan\theta \times x_2  = \Sexpr{x4}\\
+o_2 &= \text{rafter height}/\sin\theta_1 = \Sexpr{o2}\\
+x_3 &= x_1 - x_2 = \Sexpr{x3}\\
+h_2 &= \text{rafter height}/\sin\theta = \Sexpr{h2}\\
+x_8 &= \text{overhang}/\cos\theta = \Sexpr{x8}\\
+h_6 &= \Sexpr{h6}\\
+a_7 &= \Sexpr{a7}
 \end{align*}
 
 Using $x_4$ from above, KP from top (excluding tenon) to spring line is 
@@ -278,11 +266,28 @@ Since KP from top (excluding tenon) to spring line is \Sexpr{kp_height_to_spring
 
 \textbf{Roughly}, collar tie length, assuming 5-inch tenons, is $x_2\times 2 + \text{KP width} + \text{tenon lengths} = $ \Sexpr{ct_length_rough}. See \Cref{collar-tie-final-length} for more accurate calculations.
 
+\subsubsection{Does rafter line intersect spring point?} 
 
+\begin{center}
+	\includegraphics[width=0.55\textwidth]{images/rafter_intersect_sp}
+\end{center}
+
+It need not since it depends on the height of the rafter. The top rafter line will intersect the SP if and only if 
+\[ \text{rafter height } = \phi  \]
+<<>>==
+phi <- sin(theta) * a8
+@
+Given current assumptions, 
+\[ \phi = \sin\theta\times a_8 = \Sexpr{phi}   \]
+but the value of $\phi$ of course depends on various factors, for example, $dpct$:
+\begin{align*}
+dpct = 5.853 \implies \phi = 8\\
+dpct = 10 \implies \phi = 10.0395
+\end{align*}
+and so on. \textbf{The value of dpct was picked to be 5.853 so that rafter does indeed intersect the spring point.} This means that the spring point contains the intersection of post, collar tie, as well as rafter, which is nice and neat. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 
@@ -313,13 +318,6 @@ rafter_tenons_preliminary <- 3 # assuming 3 inch tenons; to be made precise late
 \end{center}
 
 <<>>==
-
-
-########## WRONG - see above for new calcs
-# x6 = sqrt(h5^2 - x5^2)
-# x8 <- overhang_sides/cos(theta)
-# h6 <- (post_width+x1)/cos(theta)
-#########
 
 
 top_of_ridge_to_spring_line <- kp_height_to_spring_line_excl_top_tenon + ridge_ht
@@ -358,8 +356,6 @@ See \Cref{kp-rafter-joints-calculations} for more precise measurements.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 
 
@@ -515,7 +511,7 @@ post_tenon_into_rafter_thickness <- 2
   \item \verb+rafter_height+ = \Sexpr{rafter_height} from \Cref{kp-collar-tie-assumptions}.
   \item \verb+collar_tie_height+ = \Sexpr{collar_tie_height} from \Cref{kp-collar-tie-assumptions}. 
   \item \verb+h3+ = \Sexpr{h3} from \Cref{kp-collar-tie-calculations}.
-  \item \verb+h5+ = \Sexpr{h5} from \Cref{kp-collar-tie-calculations}.
+  \item \verb+dpct+ = \Sexpr{dpct} from \Cref{kp-collar-tie-calculations}.
   \item \verb+post_width+ = \Sexpr{post_width} from \Cref{kp-collar-tie-assumptions}.
 \end{itemize}
 
@@ -523,13 +519,13 @@ post_tenon_into_rafter_thickness <- 2
 
 \subsection{Calculations} \label{rafter-lengths-connections-calculations}
 
-<<echo=T>>==
+<<>>==
 r6 <- rafter_height/tan(theta1)
 r8 <- x8 + h6 - r6
 r3 <- collar_tie_height/cos(theta1)
 r2 <- h3 - r3
 r5 <- post_width/cos(theta)
-r4 <- h5
+r4 <- dpct
 r7 <- r8 - r5 - r4 - r3 - r2
 
 theta2 <- atan(post_rafter_shoulder_depth/r5)
@@ -559,7 +555,7 @@ Then we have the following
 r_3 &= \text{collar tie height}/\cos\theta_1 = \Sexpr{r3}\\
 r_2 &= h_3 - r_3 = \Sexpr{r2}\\
 r_5 &= \text{post width}/\cos\theta = \Sexpr{r5}\\
-r4 &= h_5 = \Sexpr{r4}
+r4 &= dpct = \Sexpr{r4}
 \end{align*}
 which implies that 
 \[ r_7 = r_8 - r_5 - r_4 - r_3 - r_2 = \Sexpr{r7}. \]
@@ -710,6 +706,8 @@ The calculations for the first diagram are
 \end{align*}
 
 
+\begin{center}\fbox{\textbf{Is s10 correct? Doesn't match scale diagram.}}\end{center}
+
 \begin{center}
 	\includegraphics[width=0.35\textwidth]{images/strut_kp_detail}
 \end{center}
@@ -812,14 +810,6 @@ collar_tie_length <- c1*2 + kp_width_bottom + c2*2
 collar_tie_length_imperial <- get_imperial_string(collar_tie_length)
 @
 
-\begin{center}\fbox{\textbf{TODO - SEE PAPER FOR THE d AND cc variables - feb 21 2024}}\end{center}
-
-<<>>==
-d <- (180-c1*2+10)/2
-cc <- sin(theta) * d
-@
-\Sexpr{cc}
-
 
 \begin{center}\fbox{The diagram has a hardcoded value - ignore.}\end{center}
 \begin{center}
@@ -889,6 +879,8 @@ b16 <- cos(theta) * brace_tenon_depth_into_post
 \begin{center}
 	\includegraphics[width=0.45\textwidth]{images/braces_overall}
 \end{center}
+
+\begin{center}\fbox{\textbf{Does this use bad values, e.g. x5?}}\end{center}
 
 For the overall diagram, the calculations are
 \begin{align*}
@@ -1277,7 +1269,7 @@ s16_imperial <- get_imperial_string(s16)
   \item Mill a \Sexpr{kp_depth}$\times$\Sexpr{kp_width_bottom}, with length as above. 
   \item Mill off \Sexpr{kp_flare} inch on both sides, from top until \Sexpr{mill_until_here} = \Sexpr{mill_until_here_imperial}. 
   \item Transitional area = $s_{13}$ = \Sexpr{s13_imperial}; chisel or saw this out, and verify that $s_{15}$ = \Sexpr{s15_imperial}.
-  \item Mark out from top: KP top tenon length = \Sexpr{kp_top_tenon_length}, KP part = \Sexpr{kp_part}, $k_3$ = \Sexpr{k3_imperial}, verify that $k_{17}$ = \Sexpr{k17_imperial}. Mark $s_{13}$ = \Sexpr{s13_imperial}, strut height above collar tie = \Sexpr{strut_height_above_collar_tie}, and collar tie height = \Sexpr{collar_tie_height}, and finally, through tenon length = \Sexpr{kp_through_tenon_length}.
+  \item Mark out from top: KP top tenon length = \Sexpr{kp_top_tenon_length}, KP part = \Sexpr{kp_part}, $k_3$ = \Sexpr{k3_imperial}, verify that $k_{17}$ = \Sexpr{k17} = \Sexpr{k17_imperial}. Mark $s_{13}$ = \Sexpr{s13_imperial}, strut height above collar tie = \Sexpr{strut_height_above_collar_tie}, and collar tie height = \Sexpr{collar_tie_height}, and finally, through tenon length = \Sexpr{kp_through_tenon_length}.
   \item Cut top tenon at thickness = \Sexpr{kp_top_tenon_thickness} and length \Sexpr{kp_top_tenon_length}.
   \item Cut bottom tenon at \Sexpr{kp_bottom_tenon_length} inches long.
   \item At $k_3$ mortise, mark out $k_{11}$ = \Sexpr{k11_imperial} and $k_{12}$ = \Sexpr{k12_imperial}. 
