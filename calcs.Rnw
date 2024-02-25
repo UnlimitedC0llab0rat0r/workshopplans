@@ -706,8 +706,6 @@ The calculations for the first diagram are
 \end{align*}
 
 
-\begin{center}\fbox{\textbf{Is s10 correct? Doesn't match scale diagram.}}\end{center}
-
 \begin{center}
 	\includegraphics[width=0.35\textwidth]{images/strut_kp_detail}
 \end{center}
@@ -839,7 +837,7 @@ Then
 
 
 
-\section{Braces} \label{braces}
+\section{Braces for bents} \label{braces}
 
 \subsection{Assumptions}
 <<echo=T>>==
@@ -880,7 +878,7 @@ b16 <- cos(theta) * brace_tenon_depth_into_post
 	\includegraphics[width=0.45\textwidth]{images/braces_overall}
 \end{center}
 
-\begin{center}\fbox{\textbf{Does this use bad values, e.g. x5?}}\end{center}
+\begin{center}\fbox{\textbf{TODO Does this use bad values, e.g. x5?}}\end{center}
 
 For the overall diagram, the calculations are
 \begin{align*}
@@ -936,9 +934,9 @@ For braces into post,
 
 
 \section{Posts}\label{posts-plan}
-\begin{wrapfigure}[25]{r}{0.5\textwidth}
+\begin{wrapfigure}[25]{r}{0.45\textwidth}
   \begin{center}
-  	\includegraphics[width=0.5\textwidth]{images/post_calculations}
+  	\includegraphics[width=0.45\textwidth]{images/post_calculations}
   \end{center}
 	\caption{Posts layout}
 \end{wrapfigure}
@@ -995,6 +993,167 @@ From \Cref{posts-rafters-calculations}, post height excluding tenons is \Sexpr{p
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newpage
+
+
+
+\section{Ridge length final}
+\subsection{Assumptions}
+\subsection{Imported variables}
+\subsection{Calculations}
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+\section{Purlins}
+\subsection{Assumptions}
+\subsection{Imported variables}
+\subsection{Calculations}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Plate/girt}
+\subsection{Assumptions}
+\subsection{Imported variables}
+\subsection{Calculations}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+\section{Long sills}
+\subsection{Assumptions}
+\subsection{Imported variables}
+\subsection{Calculations}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+\section{Cross sills}
+\subsection{Assumptions}
+\subsection{Imported variables}
+\subsection{Calculations}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+\section{Joists}
+\subsection{Assumptions}
+\subsection{Imported variables}
+\subsection{Calculations}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+\section{Foundation posts}
+\subsection{Assumptions}
+\subsection{Imported variables}
+\subsection{Calculations}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+\section{Subfloor}
+\subsection{Assumptions}
+\subsection{Imported variables}
+\subsection{Calculations}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -1492,6 +1651,13 @@ Lengths (dynamic):
 \newpage
 
 
+\section{Scale diagram}
+
+\begin{center}
+	\includegraphics[width=0.85\textwidth]{images/scale_diagram}
+\end{center}
+
+{\scriptsize May not be final. Other restrictions apply.}
 
 
 
