@@ -156,7 +156,7 @@ and this is the milling height for this beam. Finally, ridge cross-sectional are
 
 
 <<echo=T>>==
-structure_width <- 15*12
+structure_width <- 12*12
 structure_height <- 15*12
 structure_width_half <- structure_width/2
 post_width <- 8
@@ -1651,6 +1651,7 @@ Lengths (dynamic):
 
 
 \section{Scale diagram}
+As of Feb 25, this is obsolete. Reduced structure width. 
 
 \begin{center}
 	\includegraphics[width=0.85\textwidth]{images/scale_diagram}
