@@ -157,7 +157,7 @@ and this is the milling height for this beam. Finally, ridge cross-sectional are
 
 <<echo=T>>==
 # The "structure" here is just the workshop part - shed part calculations are separate. The original width was 15 ft. 
-structure_width_feet <- 10
+structure_width_feet <- 15
 structure_width <- structure_width_feet*12
 structure_height_feet <- 15
 structure_height <- structure_height_feet*12
@@ -299,7 +299,6 @@ and so on. \textbf{The value of dpct was picked to be 5.853 so that rafter does 
 
 \subsection{Assumptions}\label{posts-rafters-assumptions}
 <<echo=T>>==
-structure_height <- 15*12 # top of ridge to base
 rafter_tenons_preliminary <- 3 # assuming 3 inch tenons; to be made precise later
 @
 
@@ -1662,8 +1661,7 @@ Lengths (dynamic):
 \newpage
 
 
-\section{Scale diagram}
-As of Feb 25, this is obsolete. Reduced structure width. 
+\section{Scale diagram: structure width = 15 ft, height = 15 ft}
 
 \begin{center}
 	\includegraphics[width=0.85\textwidth]{images/scale_diagram}
@@ -1671,6 +1669,15 @@ As of Feb 25, this is obsolete. Reduced structure width.
 
 {\scriptsize May not be final. Other restrictions apply.}
 
+
+\newpage
+
+\section{Scale diagram: structure width = 10 ft, height = 13 ft}
+
+\textbf{TODO verify lengths of all members}
+\begin{center}
+	\includegraphics[width=0.85\textwidth]{images/scale_diagram_width10ft_height13ft}
+\end{center}
 
 
 \end{document}
