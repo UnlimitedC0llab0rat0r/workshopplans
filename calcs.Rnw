@@ -156,8 +156,11 @@ and this is the milling height for this beam. Finally, ridge cross-sectional are
 
 
 <<echo=T>>==
-structure_width <- 12*12
-structure_height <- 15*12
+# The "structure" here is just the workshop part - shed part calculations are separate. The original width was 15 ft. 
+structure_width_feet <- 15
+structure_width <- structure_width_feet*12
+structure_height_feet <- 15
+structure_height <- structure_height_feet*12
 structure_width_half <- structure_width/2
 post_width <- 8
 rafter_height <- 8
@@ -870,6 +873,8 @@ b13 <- brace_tenon_depth_into_post/tan(theta1)
 b15 <- brace_width/cos(theta)
 b14 <- b15 - b13
 b16 <- cos(theta) * brace_tenon_depth_into_post
+brace_total_length <- b8 + b12 + b16
+brace_total_length_imperial <- get_imperial_string(brace_total_length)
 @
 
 \begin{center}\fbox{The diagrams have some hardcoded values - ignore those.}\end{center}
@@ -1165,6 +1170,17 @@ From \Cref{posts-rafters-calculations}, post height excluding tenons is \Sexpr{p
 \begin{center}
   \fbox{Calibrate all measuring instruments against each other before starting.}
 \end{center}
+
+Lengths:
+\begin{enumerate}
+  \item Post: \Sexpr{post_height_total_imperial}
+  \item Rafter: \Sexpr{rafter_length_final_imperial}
+  \item Kingpost: \Sexpr{kp_total_height_imperial}
+  \item Collar Tie: \Sexpr{collar_tie_length_imperial}
+  \item Struts: \Sexpr{strut_length_imperial}
+  \item Braces: \Sexpr{brace_total_length_imperial}
+\end{enumerate}
+
 \newpage
 
 \subsection{Posts}
@@ -1524,10 +1540,6 @@ b9_imperial <- get_imperial_string(b9)
 \newpage
 \subsection{Braces}
 
-<<>>==
-brace_total_length <- b8 + b12 + b16
-brace_total_length_imperial <- get_imperial_string(brace_total_length)
-@
 
 \begin{figure}[h]
     \fbox{\includegraphics[width=0.25\textwidth]{images/braces_overall}}   
