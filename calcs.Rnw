@@ -993,7 +993,6 @@ From \Cref{posts-rafters-calculations}, post height excluding tenons is \Sexpr{p
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newpage
 
 
 
