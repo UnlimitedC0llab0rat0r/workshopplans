@@ -1772,7 +1772,7 @@ Lengths (dynamic):
 
 \section{Scale diagram: structure width = 10 ft, height = 13 ft}
 
-\textbf{TODO verify lengths of all members}
+\textbf{This is too small, probably not doing this.}
 \begin{center}
 	\includegraphics[width=0.85\textwidth]{images/scale_diagram_width10ft_height13ft}
 \end{center}
